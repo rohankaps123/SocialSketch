@@ -1,190 +1,92 @@
 package com.example.kiwitech.socialsketch;
 
+
 import android.content.Context;
-import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.text.TextPaint;
+import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 
+// creates a canvas View on which you can draw.
 
-/**
- * TODO: document your custom view class.
- */
 public class CanvasView extends View {
-    private String mExampleString; // TODO: use a default from R.string...
-    private int mExampleColor = Color.RED; // TODO: use a default from R.color...
-    private float mExampleDimension = 0; // TODO: use a default from R.dimen...
-    private Drawable mExampleDrawable;
 
-    private TextPaint mTextPaint;
-    private float mTextWidth;
-    private float mTextHeight;
+//Initializing different objects to for the view
+    private Bitmap canvas_bitmap;
+    private Canvas canvas ;
+    private int brush_size;
+    /* Path Canvas is a temporary path and stores the data between finger down and finger up.
+    Can be later used to send data to different users so that they can replicate the canvas */
+    private Path path_canvas;
+    /* Stores the total Path so that it can be redrawn later or on a canvas of different size */
+    private Path path_total;
+    private Paint paint_canvas;
+    private int path_color;
 
-    public CanvasView(Context context) {
-        super(context);
-        init(null, 0);
+
+    public CanvasView(Context context,AttributeSet attrs){
+        super(context,attrs);
+        setupCanvas();
     }
 
-    public CanvasView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(attrs, 0);
-    }
-
-    public CanvasView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        init(attrs, defStyle);
-    }
-
-    private void init(AttributeSet attrs, int defStyle) {
-        // Load attributes
-        final TypedArray a = getContext().obtainStyledAttributes(
-                attrs, R.styleable.CanvasView, defStyle, 0);
-
-        mExampleString = a.getString(
-                R.styleable.CanvasView_exampleString);
-        mExampleColor = a.getColor(
-                R.styleable.CanvasView_exampleColor,
-                mExampleColor);
-        // Use getDimensionPixelSize or getDimensionPixelOffset when dealing with
-        // values that should fall on pixel boundaries.
-        mExampleDimension = a.getDimension(
-                R.styleable.CanvasView_exampleDimension,
-                mExampleDimension);
-
-        if (a.hasValue(R.styleable.CanvasView_exampleDrawable)) {
-            mExampleDrawable = a.getDrawable(
-                    R.styleable.CanvasView_exampleDrawable);
-            mExampleDrawable.setCallback(this);
-        }
-
-        a.recycle();
-
-        // Set up a default TextPaint object
-        mTextPaint = new TextPaint();
-        mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        mTextPaint.setTextAlign(Paint.Align.LEFT);
-
-        // Update TextPaint and text measurements from attributes
-        invalidateTextPaintAndMeasurements();
-    }
-
-    private void invalidateTextPaintAndMeasurements() {
-        mTextPaint.setTextSize(mExampleDimension);
-        mTextPaint.setColor(mExampleColor);
-        mTextWidth = mTextPaint.measureText(mExampleString);
-
-        Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-        mTextHeight = fontMetrics.bottom;
+    protected void setupCanvas() {
+        //setting up basic attributes for drawing
+        path_canvas = new Path();
+        path_total = new Path();
+        paint_canvas = new Paint();
+        brush_size = 5;
+        path_color = 0xFF660000;
+        paint_canvas.setColor(path_color);
+        paint_canvas.setAntiAlias(true);
+        paint_canvas.setStrokeWidth(brush_size);
+        paint_canvas.setStyle(Paint.Style.STROKE);
+        paint_canvas.setStrokeJoin(Paint.Join.ROUND);
+        paint_canvas.setStrokeCap(Paint.Cap.ROUND);
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        canvas_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        canvas = new Canvas(canvas_bitmap);
+    }
 
-        // TODO: consider storing these as member variables to reduce
-        // allocations per draw cycle.
-        int paddingLeft = getPaddingLeft();
-        int paddingTop = getPaddingTop();
-        int paddingRight = getPaddingRight();
-        int paddingBottom = getPaddingBottom();
+    @Override
 
-        int contentWidth = getWidth() - paddingLeft - paddingRight;
-        int contentHeight = getHeight() - paddingTop - paddingBottom;
+    protected void onDraw(Canvas canvas){
+        canvas.drawBitmap(canvas_bitmap,0,0,paint_canvas);
+        canvas.drawPath(path_canvas,paint_canvas);
+    }
 
-        // Draw the text.
-        canvas.drawText(mExampleString,
-                paddingLeft + (contentWidth - mTextWidth) / 2,
-                paddingTop + (contentHeight + mTextHeight) / 2,
-                mTextPaint);
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        float touchX = event.getX();
+        float touchY = event.getY();
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                path_canvas.moveTo(touchX, touchY);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                path_canvas.lineTo(touchX, touchY);
+                break;
+            case MotionEvent.ACTION_UP:
+                path_canvas.lineTo(touchX, touchY);
+                canvas.drawPath(path_canvas, paint_canvas);
+                path_total.addPath(path_canvas);
+                path_canvas.reset();
+                break;
 
-        // Draw the example drawable on top of the text.
-        if (mExampleDrawable != null) {
-            mExampleDrawable.setBounds(paddingLeft, paddingTop,
-                    paddingLeft + contentWidth, paddingTop + contentHeight);
-            mExampleDrawable.draw(canvas);
+            default:
+                return false;
         }
-    }
-
-    /**
-     * Gets the example string attribute value.
-     *
-     * @return The example string attribute value.
-     */
-    public String getExampleString() {
-        return mExampleString;
-    }
-
-    /**
-     * Sets the view's example string attribute value. In the example view, this string
-     * is the text to draw.
-     *
-     * @param exampleString The example string attribute value to use.
-     */
-    public void setExampleString(String exampleString) {
-        mExampleString = exampleString;
-        invalidateTextPaintAndMeasurements();
-    }
-
-    /**
-     * Gets the example color attribute value.
-     *
-     * @return The example color attribute value.
-     */
-    public int getExampleColor() {
-        return mExampleColor;
-    }
-
-    /**
-     * Sets the view's example color attribute value. In the example view, this color
-     * is the font color.
-     *
-     * @param exampleColor The example color attribute value to use.
-     */
-    public void setExampleColor(int exampleColor) {
-        mExampleColor = exampleColor;
-        invalidateTextPaintAndMeasurements();
-    }
-
-    /**
-     * Gets the example dimension attribute value.
-     *
-     * @return The example dimension attribute value.
-     */
-    public float getExampleDimension() {
-        return mExampleDimension;
-    }
-
-    /**
-     * Sets the view's example dimension attribute value. In the example view, this dimension
-     * is the font size.
-     *
-     * @param exampleDimension The example dimension attribute value to use.
-     */
-    public void setExampleDimension(float exampleDimension) {
-        mExampleDimension = exampleDimension;
-        invalidateTextPaintAndMeasurements();
-    }
-
-    /**
-     * Gets the example drawable attribute value.
-     *
-     * @return The example drawable attribute value.
-     */
-    public Drawable getExampleDrawable() {
-        return mExampleDrawable;
-    }
-
-    /**
-     * Sets the view's example drawable attribute value. In the example view, this drawable is
-     * drawn above the text.
-     *
-     * @param exampleDrawable The example drawable attribute value to use.
-     */
-    public void setExampleDrawable(Drawable exampleDrawable) {
-        mExampleDrawable = exampleDrawable;
+        invalidate();
+        return true;
     }
 }
