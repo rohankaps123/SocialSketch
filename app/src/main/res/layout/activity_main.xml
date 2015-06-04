@@ -6,7 +6,7 @@
     tools:context=".MainActivity">
 
     <fragment
-        android:name="com.example.kiwitech.socialsketch.CanvasFragment"
+        android:name="com.example.kiwitech.socialsketch.canvas.CanvasFragment"
         android:id="@+id/Canvas_Fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

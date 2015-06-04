@@ -6,9 +6,14 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-
+/**
+ * Main Activity
+ *
+ * @author Rohan Kapoor
+ * @since 1.0
+ */
 public class MainActivity extends Activity {
-
+    // on create displays the main activity xml
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

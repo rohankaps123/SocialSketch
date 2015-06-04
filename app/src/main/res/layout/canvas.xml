@@ -1,4 +1,4 @@
-<com.example.kiwitech.socialsketch.CanvasView
+<com.example.kiwitech.socialsketch.canvas.CanvasView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/canvas"
     android:layout_width="match_parent"
