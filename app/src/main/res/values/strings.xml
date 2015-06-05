@@ -3,7 +3,11 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="share_button">Share</string>
+    <string name="undo_button">Undo</string>
+    <string name="redo_button">Redo</string>
+    <string name="clear_button">Clear</string>
+    <string name="eraser_button">Erase</string>
+    <string name="Brush_button">Brush</string>
+    <string name="color_button">Color</string>
 </resources>

@@ -86,6 +86,7 @@ public class CanvasView extends View {
      * @param NONE
      */
     protected void setupCanvas() {
+        canvas = new Canvas();
         path_canvas = new Path();
         path_total = new Path();
         paint_canvas = new Paint();
@@ -124,7 +125,7 @@ public class CanvasView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         canvas_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        canvas = new Canvas(canvas_bitmap);
+        canvas.setBitmap(canvas_bitmap);
     }
 
     /**
@@ -135,7 +136,6 @@ public class CanvasView extends View {
     protected void onDraw(Canvas canvas){
         canvas.drawBitmap(canvas_bitmap, 0, 0, paint_canvas);
         canvas.drawPath(path_canvas, paint_canvas);
-        canvas.drawPoints(getArrayOfPoints(points), paint_canvas);
     }
 
     /**
@@ -194,6 +194,7 @@ public class CanvasView extends View {
                 if(!itMoved) {
                     points.add(new Point((int) touchX, (int) touchY));
                 }
+                canvas.drawPoints(getArrayOfPoints(points), paint_canvas);
                 canvas.drawPath(path_canvas, paint_canvas);
                 path_canvas.reset();
                 break;
