@@ -28,4 +28,9 @@ public class CanvasFragment extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.canvas, container, false);
     }
+
+    public void buttonSelected(int what_option){
+        CanvasView cview = (CanvasView) getView();
+        cview.buttonSelected(what_option);
+    }
 }

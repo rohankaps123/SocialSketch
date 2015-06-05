@@ -6,13 +6,16 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.kiwitech.socialsketch.canvas.CanvasFragment;
+import com.example.kiwitech.socialsketch.tools_pane.ToolsPaneFragment;
+
 /**
  * Main Activity
  *
  * @author Rohan Kapoor
  * @since 1.0
  */
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements ToolsPaneFragment.OnButtonSelectedListener {
     // on create displays the main activity xml
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,4 +44,11 @@ public class MainActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void OnButtonSelected(int what_button){
+        CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
+        canvasF.buttonSelected(what_button);
+    }
+
+
 }

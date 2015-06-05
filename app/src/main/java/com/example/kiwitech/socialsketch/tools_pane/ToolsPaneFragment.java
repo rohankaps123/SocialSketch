@@ -11,6 +11,14 @@ import android.view.ViewGroup;
 import com.example.kiwitech.socialsketch.R;
 
 public class ToolsPaneFragment extends Fragment {
+    OnButtonSelectedListener mCallback;
+
+    // The container Activity must implement this interface so the frag can deliver messages
+    public interface OnButtonSelectedListener {
+        /** Called by ToolsPaneFrament when a button is selected */
+        public void OnButtonSelected(int what_buton);
+    }
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
