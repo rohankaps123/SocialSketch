@@ -11,6 +11,7 @@ import com.example.kiwitech.socialsketch.tools_pane.ToolsPaneFragment;
 
 /**
  * Main Activity
+ * Handles communications between fragments
  *
  * @author Rohan Kapoor
  * @since 1.0
@@ -44,6 +45,11 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
 
         return super.onOptionsItemSelected(item);
     }
+
+    /**
+     * listener interface implementation to communicate from toolFragment to canvas fragment
+     * @param what_button
+     */
 
     public void OnButtonSelected(int what_button){
         CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);

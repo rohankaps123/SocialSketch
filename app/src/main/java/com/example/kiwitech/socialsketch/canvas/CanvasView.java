@@ -15,9 +15,8 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
-
-import java.util.ArrayList;
-import java.util.Arrays;
+import com.example.kiwitech.socialsketch.DataTypes.PathObject;
+import java.util.Stack;
 
 /**
  * View for Canvas
@@ -30,26 +29,31 @@ import java.util.Arrays;
 public class CanvasView extends View {
 
     //Initializing different objects to for the view
-
+    /**
+     * Represents the Bitmap that the canvas draws to.
+     */
     private Bitmap canvas_bitmap;
+    /**
+     * Represents the canvas that the user draws t
+     */
     private Canvas canvas;
     /**
      * Represents the Brush Size;
      */
     private int brush_size;
     /**
-     * Path Canvas is a temporary path and stores the data between finger down and finger up.
-     * Can be later used to send data to different users so that they can replicate the canvas.
+     * PathCanvas is an object that stores the data for instantaneous interaction between the finger
+     * and the canvas
      */
-    private Path path_canvas;
+    private PathObject path_canvas;
     /**
-     * Stores the total Path so that it can be redrawn later or on a canvas of different size.
+     * A Stack to store all interactions.
      */
-    private Path path_total;
+    private Stack<PathObject> paths = new Stack<PathObject>();
     /**
-     * Stores the points made by the user so that it can be redrawn later or on a canvas.
+     * A Stack to store all interactions that have been undo for redo.
      */
-    private ArrayList<Point> points = new ArrayList<Point>();
+    private Stack<PathObject> redoStack = new Stack<PathObject>();
 
     /**
      * Stores the Paint attributes for the drawing
@@ -76,19 +80,22 @@ public class CanvasView extends View {
      */
     private boolean itMoved = false;
 
+    /**
+     * Constructor to setup the Canvas.
+     * @param context
+     * @param attrs
+     */
     public CanvasView(Context context,AttributeSet attrs){
-        super(context,attrs);
+        super(context, attrs);
         setupCanvas();
     }
 
     /**
-     * sets up the canvas for drawing
-     * @param NONE
+     * Sets up the canvas for drawing
+     * @param
      */
     protected void setupCanvas() {
         canvas = new Canvas();
-        path_canvas = new Path();
-        path_total = new Path();
         paint_canvas = new Paint();
         brush_size = 10;
         path_color = 0xFF660000;
@@ -98,22 +105,9 @@ public class CanvasView extends View {
         paint_canvas.setStyle(Paint.Style.STROKE);
         paint_canvas.setStrokeJoin(Paint.Join.ROUND);
         paint_canvas.setStrokeCap(Paint.Cap.ROUND);
+        path_canvas = new PathObject(paint_canvas);
     }
 
-    /**
-     * Takes in the Arraylist of points and converts it into an array for creating points using canvas.drawPoints().
-     * @param points
-     * @return float array
-     */
-    protected float[] getArrayOfPoints(ArrayList<Point> points){
-        int length = points.size()*2;
-        float[] pointsarray = new float[length];
-        for(int i=0; i<points.size()*2; i=i+2) {
-            pointsarray[i]= points.get(i/2).x;
-            pointsarray[i+1]= points.get(i/2).y;
-        }
-        return pointsarray;
-    }
     /**
      * Sets up the size of the Bitmap used in the view when the size is changed or set and initializes a new Bitmap based on that.
      * @param w new width
@@ -135,11 +129,11 @@ public class CanvasView extends View {
     @Override
     protected void onDraw(Canvas canvas){
         canvas.drawBitmap(canvas_bitmap, 0, 0, paint_canvas);
-        canvas.drawPath(path_canvas, paint_canvas);
+        canvas.drawPath(path_canvas.getPath(),paint_canvas);
     }
 
     /**
-     * Calculates the path between two coordinates using interpolation
+     * Calculates the path between two coordinates using interpolation and adds the quadratic to the Path.
      * @param touchX
      * @param touchY
      */
@@ -147,25 +141,12 @@ public class CanvasView extends View {
         float Xdiff = Math.abs(touchX - PrevX);
         float Ydiff = Math.abs(touchY - PrevY);
         if (Xdiff >= TOUCH_TOLERANCE || Ydiff >= TOUCH_TOLERANCE) {
-            path_canvas.quadTo(PrevX, PrevY, (touchX + PrevX)/2, (touchY + PrevY)/2);
+            path_canvas.getPath().quadTo(PrevX, PrevY, (touchX + PrevX)/2, (touchY + PrevY)/2);
             PrevX = touchX;
             PrevY = touchY;
+            //Sets that the interaction is not a point
+            itMoved = true;
         }
-    }
-
-    /**
-     * Checks if the finger has moved or not
-     * @param touchX
-     * @param touchY
-     * @return true if it moved else false
-     */
-    protected boolean checkIfMoved(float touchX, float touchY) {
-        float Xdiff = Math.abs(touchX - PrevX);
-        float Ydiff = Math.abs(touchY - PrevY);
-        if (Xdiff >= TOUCH_TOLERANCE || Ydiff >= TOUCH_TOLERANCE) {
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -175,28 +156,39 @@ public class CanvasView extends View {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        redoStack.removeAllElements();
         float touchX = event.getX();
         float touchY = event.getY();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                path_canvas.moveTo(touchX, touchY);
+                //Moves the finger to the coordinates of action down
+                path_canvas.getPath().moveTo(touchX, touchY);
                 PrevX = touchX;
                 PrevY = touchY;
+                //At this point the interaction can be either a path or a point
                 itMoved = false;
                 break;
             case MotionEvent.ACTION_MOVE:
+                //If the finger moves the interaction is a path not a point. Add the the path using when_moving.
                 when_moving(touchX, touchY);
-                itMoved = true;
                 break;
             case MotionEvent.ACTION_UP:
-                path_canvas.lineTo(touchX, touchY);
-                path_total.addPath(path_canvas);
                 if(!itMoved) {
-                    points.add(new Point((int) touchX, (int) touchY));
+                    //Interaction is a point. Set its coordinates in path_canvas and add it to the paths stack.
+                    path_canvas.getPoint().set((int) touchX, (int) touchY);
+                    canvas.drawPoint(path_canvas.getPoint().x, path_canvas.getPoint().y, path_canvas.getPaint());
+                    path_canvas.setIsPoint(true);
+                    paths.add(path_canvas);
                 }
-                canvas.drawPoints(getArrayOfPoints(points), paint_canvas);
-                canvas.drawPath(path_canvas, paint_canvas);
-                path_canvas.reset();
+                else{
+                    //Interaction is a path. Set the path_canvas and add it to the paths stack.
+                    path_canvas.getPath().lineTo(touchX, touchY);
+                    canvas.drawPath(path_canvas.getPath(), path_canvas.getPaint());
+                    path_canvas.setIsPoint(false);
+                    paths.add(path_canvas);
+                }
+                // Renew path_canvas for next interaction
+                path_canvas = new PathObject(paint_canvas);
                 break;
             default:
                 return false;
@@ -205,23 +197,125 @@ public class CanvasView extends View {
         invalidate();
         return true;
     }
-    
+
+    /**
+     * Receives the message that a button has been selected in the toolbar and invokes the right function
+     * @param what_option
+     */
     public void buttonSelected(int what_option){
         switch(what_option){
-            case 1:
+            case 1: changeColor();
                 break;
-            case 2:
+            case 2: changeBrushSize();
                 break;
-            case 3:
+            case 3: setEraser();
                 break;
-            case 4:
+            case 4: clearCanvas();
                 break;
-            case 5:
+            case 5: pathUndo();
                 break;
-            case 6:
+            case 6: pathRedo();
                 break;
-            case 7:
+            case 7: share();
                 break;
         }
+    }
+
+    /**
+     * Invokes The change color dialogue
+     */
+    private void changeColor(){
+        Log.d("selected", "changecolor");
+    }
+
+    /**
+     * Invokes The change Brush Size dialogue
+     */
+    private void changeBrushSize(){
+        Log.d("selected", "changebrishsize");
+        paint_canvas.setColor(path_color);
+        paint_canvas.setStrokeWidth(brush_size);
+    }
+
+    /**
+     * Sets the brush type to erase
+     */
+    private void setEraser(){
+        Log.d("selected","seteraser");
+        paint_canvas.setColor(0xFFFFFFFF);
+        paint_canvas.setStrokeWidth(50);
+    }
+
+    /**
+     * Clears the canvas and resets the stacks
+     */
+    private void clearCanvas(){
+        Log.d("selected", "clearcanvas");
+        int w = getMeasuredWidth();
+        int h = getMeasuredHeight();
+        paths.removeAllElements();
+        redoStack.removeAllElements();
+        canvas_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(canvas_bitmap);
+        invalidate();
+    }
+
+    /**
+     * Undoes the last drawn item
+     */
+    private void pathUndo(){
+        Log.d("selected", "undo");
+        int w = getMeasuredWidth();
+        int h = getMeasuredHeight();
+        canvas_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(canvas_bitmap);
+        //Remove the last path from the stack if there is one and add it to the redo stack
+        if(!paths.isEmpty()){
+            redoStack.add(paths.pop());
+        }
+        else{
+            return;
+        }
+        //redraw all the paths drawn earlier
+        for(PathObject a : paths) {
+            if (a.CheckifPoint()) {
+                canvas.drawPoint(a.getPoint().x, a.getPoint().y, a.getPaint());
+            }
+            else{
+                canvas.drawPath(a.getPath(),a.getPaint());
+            }
+        }
+      invalidate();
+    }
+
+
+    /**
+     * redraws the items undoed
+     */
+    private void pathRedo(){
+        Log.d("selected","redo");
+        if (!redoStack.isEmpty()){
+            PathObject redoPath = redoStack.pop();
+            //Redraws the path in the redoStack and adds it to the paths stack as it is back on the canvas
+            if (redoPath.CheckifPoint()) {
+                canvas.drawPoint(redoPath.getPoint().x, redoPath.getPoint().y, redoPath.getPaint());
+                paths.add(redoPath);
+            }
+            else{
+                canvas.drawPath(redoPath.getPath(),redoPath.getPaint());
+                paths.add(redoPath);
+            }
+            invalidate();
+        }
+        else{
+            return;
+        }
+    }
+
+    /**
+     * Shares the jpeg to other apps and saving to the gallery
+     */
+    private void share(){
+        Log.d("selected","upload");
     }
 }

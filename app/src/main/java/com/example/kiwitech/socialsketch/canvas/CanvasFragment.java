@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.graphics.Canvas;
+import android.widget.Button;
 
 import com.example.kiwitech.socialsketch.R;
 
@@ -29,6 +30,10 @@ public class CanvasFragment extends Fragment {
         return inflater.inflate(R.layout.canvas, container, false);
     }
 
+    /**
+     * Receives the message from the main activity
+     * @param what_option
+     */
     public void buttonSelected(int what_option){
         CanvasView cview = (CanvasView) getView();
         cview.buttonSelected(what_option);

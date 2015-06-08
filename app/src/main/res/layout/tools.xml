@@ -4,10 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <Button
+        style="?android:attr/buttonBarButtonStyle"
         android:id="@+id/color_button"
         android:text="@string/color_button"
         android:textColor="#FFFFFF"
-        android:textSize="15sp"
+        android:textSize="12sp"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="match_parent"
@@ -18,9 +19,11 @@
         android:shadowRadius="5"
         />
     <Button
+        style="?android:attr/buttonBarButtonStyle"
         android:text="@string/Brush_button"
+        android:id="@+id/brush_button"
         android:textColor="#FFFFFF"
-        android:textSize="15sp"
+        android:textSize="12sp"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="match_parent"
@@ -31,10 +34,11 @@
         android:shadowRadius="5"
         />
     <Button
+        style="?android:attr/buttonBarButtonStyle"
         android:id="@+id/erase_button"
         android:text="@string/eraser_button"
         android:textColor="#FFFFFF"
-        android:textSize="15sp"
+        android:textSize="12sp"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="match_parent"
@@ -45,10 +49,11 @@
         android:shadowRadius="5"
         />
     <Button
+        style="?android:attr/buttonBarButtonStyle"
         android:id="@+id/clear_button"
         android:text="@string/clear_button"
         android:textColor="#FFFFFF"
-        android:textSize="15sp"
+        android:textSize="12sp"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="match_parent"
@@ -59,10 +64,11 @@
         android:shadowRadius="5"
         />
     <Button
+        style="?android:attr/buttonBarButtonStyle"
         android:id="@+id/undo_button"
         android:text="@string/undo_button"
         android:textColor="#FFFFFF"
-        android:textSize="15sp"
+        android:textSize="12sp"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="match_parent"
@@ -73,10 +79,11 @@
         android:shadowRadius="5"
         />
     <Button
+        style="?android:attr/buttonBarButtonStyle"
         android:id="@+id/redo_button"
         android:text="@string/redo_button"
         android:textColor="#FFFFFF"
-        android:textSize="15sp"
+        android:textSize="12sp"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="match_parent"
@@ -87,10 +94,11 @@
         android:shadowRadius="5"
         />
     <Button
+        style="?android:attr/buttonBarButtonStyle"
         android:id="@+id/share_button"
         android:text="@string/share_button"
         android:textColor="#FFFFFF"
-        android:textSize="15sp"
+        android:textSize="12sp"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="match_parent"
