@@ -1,21 +1,25 @@
 package com.example.kiwitech.socialsketch.canvas;
 
+
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Point;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
 import com.example.kiwitech.socialsketch.DataTypes.PathObject;
+import com.example.kiwitech.socialsketch.R;
+
 import java.util.Stack;
+
 
 /**
  * View for Canvas
@@ -25,7 +29,7 @@ import java.util.Stack;
  * @author Rohan Kapoor
  * @since 1.0
  */
-public class CanvasView extends View {
+public class CanvasView extends View{
 
     //Initializing different objects to for the view
     /**
@@ -48,11 +52,11 @@ public class CanvasView extends View {
     /**
      * A Stack to store all interactions.
      */
-    private Stack<PathObject> paths = new Stack<PathObject>();
+    private Stack<PathObject> paths = new Stack<>();
     /**
      * A Stack to store all interactions that have been undo for redo.
      */
-    private Stack<PathObject> redoStack = new Stack<PathObject>();
+    private Stack<PathObject> redoStack = new Stack<>();
 
     /**
      * Stores the Paint attributes for the drawing
@@ -78,25 +82,20 @@ public class CanvasView extends View {
      * To keep track of whether the finger moved or not
      */
     private boolean itMoved = false;
-    private Context context;
-
 
     /**
      * Constructor to setup the Canvas.
      *
-     * @param context
-     * @param attrs
+     * @param context Context of the view
+     * @param attrs  Attributes passed to the View
      */
     public CanvasView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.context = context;
         setupCanvas();
     }
 
     /**
      * Sets up the canvas for drawing
-     *
-     * @param``
      */
     protected void setupCanvas() {
         canvas = new Canvas();
@@ -130,7 +129,7 @@ public class CanvasView extends View {
     /**
      * Recreates the Bitmap from the saved bitmap and draws the new path on the canvas.
      *
-     * @param canvas
+     * @param canvas The Canvas to draw on
      */
     @Override
     protected void onDraw(Canvas canvas) {
@@ -141,8 +140,8 @@ public class CanvasView extends View {
     /**
      * Calculates the path between two coordinates using interpolation and adds the quadratic to the Path.
      *
-     * @param touchX
-     * @param touchY
+     * @param touchX X Coordinate for Touch
+     * @param touchY Y coordinate for Touch
      */
     protected void when_moving(float touchX, float touchY) {
         float Xdiff = Math.abs(touchX - PrevX);
@@ -158,8 +157,7 @@ public class CanvasView extends View {
 
     /**
      * On a touch event it adds a line from previous coordinates to new coordinates.
-     *
-     * @param event
+     * @param event MotionEvent that has happened
      * @return True if the event was a touch event and false if it was not a touch event
      */
     @Override
@@ -193,9 +191,6 @@ public class CanvasView extends View {
                     canvas.drawPath(path_canvas.getPath(), paint_canvas);
                     path_canvas.setIsPoint(false);
                     paths.add(path_canvas);
-                    for (PathObject a : paths) {
-                        Log.d("deee", String.valueOf(a.getPaint()));
-                    }
                 }
                 // Renew path_canvas and paint_canvas for next interaction
                 paint_canvas = new Paint(paint_canvas);
@@ -210,58 +205,55 @@ public class CanvasView extends View {
     }
 
     /**
-     * Receives the message that a button has been selected in the toolbar and invokes the right function
-     *
-     * @param what_option
+     * Changes the color on after receiving a message from the dialogue
      */
-    public void buttonSelected(int what_option) {
-        switch (what_option) {
-            case 1:
-                changeColor();
-                break;
-            case 2:
-                changeBrushSize();
-                break;
-            case 3:
-                setEraser();
-                break;
-            case 4:
-                clearCanvas();
-                break;
-            case 5:
-                pathUndo();
-                break;
-            case 6:
-                pathRedo();
-                break;
-            case 7:
-                share();
-                break;
-        }
-    }
-
-    /**
-     * Invokes The change color dialogue fragment
-     */
-    private void changeColor() {
-        Log.d("selected", "changecolor");
-    }
-
-    /**
-     * Invokes The change Brush Size dialogue
-     */
-    private void changeBrushSize() {
-        Log.d("selected", "changebrishsize");
-        path_color = 0xFF660000;
+    public void changeColor(int color) {
+        path_color = color;
         paint_canvas.setColor(path_color);
+    }
+
+    /**
+     * Invokes The change Brush Size dialog
+     */
+    public void changeBrushSize() {
+        final Dialog sizeSetter = new Dialog(getContext());
+        sizeSetter.setContentView(R.layout.slider_size_dialog);
+        sizeSetter.setTitle("Set Size");
+        TextView textView = (TextView) sizeSetter.findViewById(android.R.id.title);
+        if(textView != null)
+        {
+            textView.setGravity(Gravity.CENTER);
+        }
+        sizeSetter.setCancelable(true);
+        sizeSetter.show();
+        SeekBar slider = (SeekBar)sizeSetter.findViewById(R.id.slider_dialog);
+        slider.setFocusable(true);
+        Button okay = (Button) sizeSetter.findViewById(R.id.okay_button_size_dialog);
+        View.OnClickListener ButtonHandler = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               brush_size = (int) sizeSetter.findViewById(R.id.slider_dialog).getX();
+                sizeSetter.dismiss();
+            }
+        };
+        okay.setOnClickListener(ButtonHandler);
         paint_canvas.setStrokeWidth(brush_size);
     }
 
     /**
      * Sets the brush type to erase
      */
-    private void setEraser() {
-        Log.d("selected", "seteraser");
+    public void setEraser() {
+        Dialog sizeSetter = new Dialog(getContext());
+        sizeSetter.setContentView(R.layout.slider_size_dialog);
+        sizeSetter.setTitle("Set Size");
+        TextView textView = (TextView) sizeSetter.findViewById(android.R.id.title);
+        if(textView != null)
+        {
+            textView.setGravity(Gravity.CENTER);
+        }
+        sizeSetter.setCancelable(true);
+        sizeSetter.show();
         path_color = 0xFFFFFFFF;
         paint_canvas.setColor(path_color);
         paint_canvas.setStrokeWidth(50);
@@ -270,8 +262,7 @@ public class CanvasView extends View {
     /**
      * Clears the canvas and resets the stacks
      */
-    private void clearCanvas() {
-        Log.d("selected", "clearcanvas");
+    public void clearCanvas() {
         int w = getMeasuredWidth();
         int h = getMeasuredHeight();
         paths.removeAllElements();
@@ -284,8 +275,7 @@ public class CanvasView extends View {
     /**
      * Undoes the last drawn item
      */
-    private void pathUndo() {
-        Log.d("selected", "undo");
+    public void pathUndo() {
         int w = getMeasuredWidth();
         int h = getMeasuredHeight();
         canvas_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -307,12 +297,10 @@ public class CanvasView extends View {
         invalidate();
     }
 
-
     /**
      * redraws the items undoed
      */
-    private void pathRedo() {
-        Log.d("selected", "redo");
+    public void pathRedo() {
         if (!redoStack.isEmpty()) {
             PathObject redoPath = redoStack.pop();
             //Redraws the path in the redoStack and adds it to the paths stack as it is back on the canvas
@@ -324,16 +312,21 @@ public class CanvasView extends View {
                 paths.add(redoPath);
             }
             invalidate();
-        } else {
-            return;
         }
     }
 
     /**
      * Shares the jpeg to other apps and saving to the gallery
      */
-    private void share() {
+    public void share() {
         Log.d("selected", "upload");
     }
 
+    /**
+     * Returns the current set color of the brush
+     * @return Color of the current brush
+     */
+    public int getCurrentPathColor() {
+        return paint_canvas.getColor();
+    }
 }

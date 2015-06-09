@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <SeekBar
+        android:id="@+id/slider_dialog"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"
+        android:layout_marginBottom="2sp"
+        android:layout_marginTop="2sp"
+        android:layout_width="300sp"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/okay_button_size_dialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="OK"
+        android:layout_marginBottom="17sp"
+        style="@style/SizeDialogButtonStyle"/>
+</LinearLayout>

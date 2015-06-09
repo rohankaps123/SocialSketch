@@ -10,7 +10,16 @@ import android.widget.Button;
 
 import com.example.kiwitech.socialsketch.R;
 
+/* FRAGMENT for ToolBox
+*
+* Added Fragment to draw the Tools. It inflates the different Button views when it is called
+* @author Rohan Kapoor
+* @since 1.0
+*/
 public class ToolsPaneFragment extends Fragment {
+    /**
+     * Callback object to communicate with the main activity
+     */
     OnButtonSelectedListener mCallback;
 
     // The container Activity must implement this interface so the frag can deliver messages
@@ -23,7 +32,7 @@ public class ToolsPaneFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View thisView =  inflater.inflate(R.layout.tools, container, false);
-
+        // Get Buttons and attach a OnClick Listener to them
         Button color = (Button) thisView.findViewById(R.id.color_button);
         Button brush = (Button) thisView.findViewById(R.id.brush_button);
         Button erase = (Button) thisView.findViewById(R.id.erase_button);
@@ -52,9 +61,11 @@ public class ToolsPaneFragment extends Fragment {
             mCallback = (OnButtonSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnHeadlineSelectedListener");
+                    + " must implement OnButtonSelectedListener");
         }
     }
+
+    // Return the right Option number on a click
     private View.OnClickListener ButtonHandler = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
