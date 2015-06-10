@@ -95,6 +95,21 @@
         />
     <Button
         style="?android:attr/buttonBarButtonStyle"
+        android:id="@+id/save_button"
+        android:text="@string/save_button"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:background="@drawable/button_tools"
+        android:shadowColor="#435761"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="5"
+        />
+    <Button
+        style="?android:attr/buttonBarButtonStyle"
         android:id="@+id/share_button"
         android:text="@string/share_button"
         android:textColor="#FFFFFF"

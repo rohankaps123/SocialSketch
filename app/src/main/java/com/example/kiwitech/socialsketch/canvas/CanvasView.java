@@ -370,58 +370,12 @@ public class CanvasView extends View{
         }
     }
 
-    private void SaveImage(Bitmap finalBitmap) {
-
-        String root = Environment.getExternalStorageDirectory().toString();
-        File myDir = new File(root + "/SocialSketch/Saved");
-        myDir.mkdirs();
-        Random generator = new Random();
-        int n = 10000;
-        n = generator.nextInt(n);
-        String fname = "Image-"+ n +".PNG" ;
-        File file = new File (myDir, fname);
-        if (file.exists ()) file.delete ();
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-            out.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
-        File f = new File(myDir+"/"+ fname);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        getContext().sendBroadcast(mediaScanIntent);
-
-        final Dialog fileSaved = new Dialog(getContext());
-        fileSaved.setTitle("File Saved");
-        TextView textView = (TextView) fileSaved.findViewById(android.R.id.title);
-        if(textView != null)
-        {
-            textView.setGravity(Gravity.CENTER);
-        }
-        fileSaved.setContentView(R.layout.file_saved_layout);
-        Button okay = (Button) fileSaved.findViewById(R.id.okay_button_filesaved);
-        View.OnClickListener ButtonHandler = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Dismiss on clicking the OK button
-                fileSaved.dismiss();
-            }
-        };
-        okay.setOnClickListener(ButtonHandler);
-        fileSaved.setCancelable(true);
-        fileSaved.show();
-    }
     /**
-     * Shares the jpeg to other apps and saving to the gallery
+     * Returns the Bitmap of the canvas
+     * @return Bitmap of the canvas
      */
-    public void share() {
-        SaveImage(canvas_bitmap);
-
+    public Bitmap getCanvas_bitmap() {
+        return canvas_bitmap;
     }
 
     /**

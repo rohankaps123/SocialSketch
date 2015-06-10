@@ -39,6 +39,7 @@ public class ToolsPaneFragment extends Fragment {
         Button clear = (Button) thisView.findViewById(R.id.clear_button);
         Button undo = (Button) thisView.findViewById(R.id.undo_button);
         Button redo = (Button) thisView.findViewById(R.id.redo_button);
+        Button save = (Button) thisView.findViewById(R.id.save_button);
         Button upload = (Button) thisView.findViewById(R.id.share_button);
 
         color.setOnClickListener(ButtonHandler);
@@ -47,6 +48,7 @@ public class ToolsPaneFragment extends Fragment {
         clear.setOnClickListener(ButtonHandler);
         undo.setOnClickListener(ButtonHandler);
         redo.setOnClickListener(ButtonHandler);
+        save.setOnClickListener(ButtonHandler);
         upload.setOnClickListener(ButtonHandler);
 
         return thisView;
@@ -88,8 +90,11 @@ public class ToolsPaneFragment extends Fragment {
                 case R.id.redo_button:
                     mCallback.OnButtonSelected(6);
                     break;
-                case R.id.share_button:
+                case R.id.save_button:
                     mCallback.OnButtonSelected(7);
+                    break;
+                case R.id.share_button:
+                    mCallback.OnButtonSelected(8);
                     break;
                 default:
                     break;

@@ -10,4 +10,6 @@
     <string name="eraser_button">Erase</string>
     <string name="Brush_button">Brush</string>
     <string name="color_button">Color</string>
+    <string name="save_button">Save</string>
+
 </resources>

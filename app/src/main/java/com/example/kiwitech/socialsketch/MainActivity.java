@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +13,8 @@ import android.view.MenuItem;
 import com.example.kiwitech.socialsketch.canvas.CanvasFragment;
 import com.example.kiwitech.socialsketch.canvas.CanvasView;
 import com.example.kiwitech.socialsketch.tools_pane.ToolsPaneFragment;
+
+import java.io.File;
 
 import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
 
@@ -91,5 +94,14 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
      */
     @Override
     public void onDialogDismissed(int dialogId) {
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/SocialSketch/temp");
+        if(myDir.exists())
+        myDir.delete();
     }
 }
