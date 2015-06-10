@@ -82,6 +82,14 @@ public class CanvasView extends View{
      * To keep track of whether the finger moved or not
      */
     private boolean itMoved = false;
+    /**
+     * Save the color state after setting brush from eraser
+     */
+    private int saved_color=0;
+    /**
+     * Keeps track whether the user is coming from erase mode or not
+     */
+    private boolean eraseMode =false;
 
     /**
      * Constructor to setup the Canvas.
@@ -133,7 +141,10 @@ public class CanvasView extends View{
      */
     @Override
     protected void onDraw(Canvas canvas) {
+        int alpha = paint_canvas.getAlpha();
+        paint_canvas.setAlpha(255);
         canvas.drawBitmap(canvas_bitmap, 0, 0, paint_canvas);
+        paint_canvas.setAlpha(alpha);
         canvas.drawPath(path_canvas.getPath(), paint_canvas);
     }
 
@@ -216,8 +227,21 @@ public class CanvasView extends View{
      * Invokes The change Brush Size dialog
      */
     public void changeBrushSize() {
+        //Load the saved color if it is not set to erase
+        if(eraseMode) {
+            path_color = saved_color;
+        }
+        paint_canvas.setColor(path_color);
+        setupSliderDialog();
+    }
+
+    /**
+     * This sets up a Slider Dialog to change the size of the brush
+     */
+    public void setupSliderDialog(){
         final Dialog sizeSetter = new Dialog(getContext());
         sizeSetter.setContentView(R.layout.slider_size_dialog);
+        //set the title
         sizeSetter.setTitle("Set Size");
         TextView textView = (TextView) sizeSetter.findViewById(android.R.id.title);
         if(textView != null)
@@ -226,37 +250,59 @@ public class CanvasView extends View{
         }
         sizeSetter.setCancelable(true);
         sizeSetter.show();
+        //Get the slider reference
         SeekBar slider = (SeekBar)sizeSetter.findViewById(R.id.slider_dialog);
         slider.setFocusable(true);
+        //Set Max Brush Size to 200 px
+        slider.setMax(200);
+        if(brush_size != 0){
+            slider.setProgress(brush_size);
+        }
+        //Setup Textview to display the progress
+        TextView progressText = (TextView)sizeSetter.findViewById(R.id.progressText_dialog);
+        progressText.setText(String.valueOf(brush_size) + "px");
+        SeekBar.OnSeekBarChangeListener onseekbarListener = new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                //change the progress in the textview
+                TextView progressText = (TextView)sizeSetter.findViewById(R.id.progressText_dialog);
+                progressText.setText(String.valueOf(progress+"px"));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                //set the new size of the brush
+                brush_size = seekBar.getProgress();
+                paint_canvas.setStrokeWidth(brush_size);
+            }
+        };
+
+        slider.setOnSeekBarChangeListener(onseekbarListener);
         Button okay = (Button) sizeSetter.findViewById(R.id.okay_button_size_dialog);
         View.OnClickListener ButtonHandler = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               brush_size = (int) sizeSetter.findViewById(R.id.slider_dialog).getX();
+                //Dismiss on clicking the OK button
                 sizeSetter.dismiss();
             }
         };
         okay.setOnClickListener(ButtonHandler);
-        paint_canvas.setStrokeWidth(brush_size);
     }
 
     /**
-     * Sets the brush type to erase
+     * Sets the brush type to erase and invoke a dialog to set the size
      */
     public void setEraser() {
-        Dialog sizeSetter = new Dialog(getContext());
-        sizeSetter.setContentView(R.layout.slider_size_dialog);
-        sizeSetter.setTitle("Set Size");
-        TextView textView = (TextView) sizeSetter.findViewById(android.R.id.title);
-        if(textView != null)
-        {
-            textView.setGravity(Gravity.CENTER);
-        }
-        sizeSetter.setCancelable(true);
-        sizeSetter.show();
+        //save the current path_color and change it to erase
+        eraseMode = true;
+        saved_color = path_color;
         path_color = 0xFFFFFFFF;
         paint_canvas.setColor(path_color);
-        paint_canvas.setStrokeWidth(50);
+        setupSliderDialog();
     }
 
     /**
