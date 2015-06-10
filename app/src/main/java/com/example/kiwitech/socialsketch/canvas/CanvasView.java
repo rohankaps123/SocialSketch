@@ -3,9 +3,13 @@ package com.example.kiwitech.socialsketch.canvas;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -18,6 +22,9 @@ import android.widget.TextView;
 import com.example.kiwitech.socialsketch.DataTypes.PathObject;
 import com.example.kiwitech.socialsketch.R;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Random;
 import java.util.Stack;
 
 
@@ -132,6 +139,7 @@ public class CanvasView extends View{
         super.onSizeChanged(w, h, oldw, oldh);
         canvas_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         canvas.setBitmap(canvas_bitmap);
+        canvas.drawColor(0xFFFFFFFF);
     }
 
     /**
@@ -315,6 +323,7 @@ public class CanvasView extends View{
         redoStack.removeAllElements();
         canvas_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         canvas.setBitmap(canvas_bitmap);
+        canvas.drawColor(0xFFFFFFFF);
         invalidate();
     }
 
@@ -361,11 +370,58 @@ public class CanvasView extends View{
         }
     }
 
+    private void SaveImage(Bitmap finalBitmap) {
+
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/SocialSketch/Saved");
+        myDir.mkdirs();
+        Random generator = new Random();
+        int n = 10000;
+        n = generator.nextInt(n);
+        String fname = "Image-"+ n +".PNG" ;
+        File file = new File (myDir, fname);
+        if (file.exists ()) file.delete ();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
+        File f = new File(myDir+"/"+ fname);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        getContext().sendBroadcast(mediaScanIntent);
+
+        final Dialog fileSaved = new Dialog(getContext());
+        fileSaved.setTitle("File Saved");
+        TextView textView = (TextView) fileSaved.findViewById(android.R.id.title);
+        if(textView != null)
+        {
+            textView.setGravity(Gravity.CENTER);
+        }
+        fileSaved.setContentView(R.layout.file_saved_layout);
+        Button okay = (Button) fileSaved.findViewById(R.id.okay_button_filesaved);
+        View.OnClickListener ButtonHandler = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Dismiss on clicking the OK button
+                fileSaved.dismiss();
+            }
+        };
+        okay.setOnClickListener(ButtonHandler);
+        fileSaved.setCancelable(true);
+        fileSaved.show();
+    }
     /**
      * Shares the jpeg to other apps and saving to the gallery
      */
     public void share() {
-        Log.d("selected", "upload");
+        SaveImage(canvas_bitmap);
+
     }
 
     /**
