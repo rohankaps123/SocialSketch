@@ -10,6 +10,9 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -18,6 +21,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.kiwitech.socialsketch.canvas.CanvasFragment;
 import com.example.kiwitech.socialsketch.canvas.CanvasView;
@@ -38,11 +42,15 @@ import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
  * @since 1.0
  */
 public class MainActivity extends Activity implements ToolsPaneFragment.OnButtonSelectedListener,ColorPickerDialogFragment.ColorPickerDialogListener{
+    private Handler h;
+
     // on create displays the main activity xml
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+         h = new Handler(MainActivity.this.getMainLooper());
+        // Although you need to pass an appropriate context
     }
 
     @Override
@@ -121,83 +129,80 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
 
 
     /**
-     * Takes a Bimap and compresses it into a PNG and stores it to internal Storage
+     * Takes a Bimap and compresses it into a PNG and stores it to internal Storage in a new thread
      * @param finalBitmap
      */
-    private void SaveImage(Bitmap finalBitmap) {
-        String root = Environment.getExternalStorageDirectory().toString();
-        File myDir = new File(root + "/SocialSketch/Saved");
-        myDir.mkdirs();
-        Random generator = new Random();
-        int n = 10000;
-        n = generator.nextInt(n);
-        String fname = "Image-"+ n +".PNG" ;
-        File file = new File (myDir, fname);
-        if (file.exists ()) file.delete ();
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-            out.close();
+    private void SaveImage(final Bitmap finalBitmap) {
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
-        File f = new File(myDir+"/"+ fname);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        sendBroadcast(mediaScanIntent);
+       new Thread(new Runnable() {
+           @Override
+           public void run() {
+               String root = Environment.getExternalStorageDirectory().toString();
+               File myDir = new File(root + "/SocialSketch/Saved");
+               myDir.mkdirs();
+               Random generator = new Random();
+               int n = 10000;
+               n = generator.nextInt(n);
+               String fname = "Image-"+ n +".PNG" ;
+               File file = new File (myDir, fname);
+               if (file.exists ()) file.delete ();
+               try {
+                   FileOutputStream out = new FileOutputStream(file);
+                   finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                   out.flush();
+                   out.close();
 
-        final Dialog fileSaved = new Dialog(this);
-        fileSaved.setTitle("File Saved");
-        TextView textView = (TextView) fileSaved.findViewById(android.R.id.title);
-        if(textView != null)
-        {
-            textView.setGravity(Gravity.CENTER);
-        }
-        fileSaved.setContentView(R.layout.file_saved_layout);
-        Button okay = (Button) fileSaved.findViewById(R.id.okay_button_filesaved);
-        View.OnClickListener ButtonHandler = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Dismiss on clicking the OK button
-                fileSaved.dismiss();
-            }
-        };
-        okay.setOnClickListener(ButtonHandler);
-        fileSaved.setCancelable(true);
-        fileSaved.show();
+               } catch (Exception e) {
+                   e.printStackTrace();
+               }
+               Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
+               File f = new File(myDir+"/"+ fname);
+               Uri contentUri = Uri.fromFile(f);
+               mediaScanIntent.setData(contentUri);
+               sendBroadcast(mediaScanIntent);
+               h.post(new Runnable() {
+                   @Override
+                   public void run() {
+                       Toast.makeText(MainActivity.this, "Image Saved", Toast.LENGTH_LONG).show();
+                   }
+               });
+           }
+       }).start();
     }
 
     /**
      * Takes a Bimap and compresses it into a PNG and shares it with other apps
      * @param bitmap
      */
-    private void shareImage(Bitmap bitmap){
-        String root = Environment.getExternalStorageDirectory().toString();
-        File myDir = new File(root + "/SocialSketch/temp");
-        myDir.mkdirs();
-        Random generator = new Random();
-        int n = 10000;
-        n = generator.nextInt(n);
-        String fname = "Image-"+ n +".PNG" ;
-        File file = new File (myDir, fname);
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        File f = new File(myDir+"/"+ fname);
-        Uri contentUri = Uri.fromFile(f);
-        shareIntent.setData(contentUri);
-        shareIntent.setType("image/png");
-        shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
-        startActivity(Intent.createChooser(shareIntent, "Share image using"));
+    private void shareImage(final Bitmap bitmap){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String root = Environment.getExternalStorageDirectory().toString();
+                File myDir = new File(root + "/SocialSketch/temp");
+                myDir.mkdirs();
+                Random generator = new Random();
+                int n = 10000;
+                n = generator.nextInt(n);
+                String fname = "Image-" + n + ".PNG";
+                File file = new File(myDir, fname);
+                try {
+                    FileOutputStream out = new FileOutputStream(file);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                    out.flush();
+                    out.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                File f = new File(myDir + "/" + fname);
+                Uri contentUri = Uri.fromFile(f);
+                shareIntent.setData(contentUri);
+                shareIntent.setType("image/png");
+                shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+                startActivity(Intent.createChooser(shareIntent, "Share image using"));
+            }
+        }).start();
     }
 
     /**
