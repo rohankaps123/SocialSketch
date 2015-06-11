@@ -1,30 +1,14 @@
 package com.example.kiwitech.socialsketch.canvas;
 
 
-import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.media.MediaScannerConnection;
-import android.net.Uri;
-import android.os.Environment;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.SeekBar;
-import android.widget.TextView;
-
 import com.example.kiwitech.socialsketch.DataTypes.PathObject;
-import com.example.kiwitech.socialsketch.R;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Random;
 import java.util.Stack;
 
 
@@ -234,84 +218,28 @@ public class CanvasView extends View{
     /**
      * Invokes The change Brush Size dialog
      */
-    public void changeBrushSize() {
+    public void changeBrushSize(int brush_size) {
         //Load the saved color if it is not set to erase
         if(eraseMode) {
             path_color = saved_color;
         }
         paint_canvas.setColor(path_color);
-        setupSliderDialog();
+        paint_canvas.setStrokeWidth(brush_size);
     }
 
-    /**
-     * This sets up a Slider Dialog to change the size of the brush
-     */
-    public void setupSliderDialog(){
-        final Dialog sizeSetter = new Dialog(getContext());
-        sizeSetter.setContentView(R.layout.slider_size_dialog);
-        //set the title
-        sizeSetter.setTitle("Set Size");
-        TextView textView = (TextView) sizeSetter.findViewById(android.R.id.title);
-        if(textView != null)
-        {
-            textView.setGravity(Gravity.CENTER);
-        }
-        sizeSetter.setCancelable(true);
-        sizeSetter.show();
-        //Get the slider reference
-        SeekBar slider = (SeekBar)sizeSetter.findViewById(R.id.slider_dialog);
-        slider.setFocusable(true);
-        //Set Max Brush Size to 200 px
-        slider.setMax(200);
-        if(brush_size != 0){
-            slider.setProgress(brush_size);
-        }
-        //Setup Textview to display the progress
-        TextView progressText = (TextView)sizeSetter.findViewById(R.id.progressText_dialog);
-        progressText.setText(String.valueOf(brush_size) + "px");
-        SeekBar.OnSeekBarChangeListener onseekbarListener = new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                //change the progress in the textview
-                TextView progressText = (TextView)sizeSetter.findViewById(R.id.progressText_dialog);
-                progressText.setText(String.valueOf(progress+"px"));
-            }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                //set the new size of the brush
-                brush_size = seekBar.getProgress();
-                paint_canvas.setStrokeWidth(brush_size);
-            }
-        };
-
-        slider.setOnSeekBarChangeListener(onseekbarListener);
-        Button okay = (Button) sizeSetter.findViewById(R.id.okay_button_size_dialog);
-        View.OnClickListener ButtonHandler = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Dismiss on clicking the OK button
-                sizeSetter.dismiss();
-            }
-        };
-        okay.setOnClickListener(ButtonHandler);
-    }
 
     /**
      * Sets the brush type to erase and invoke a dialog to set the size
      */
-    public void setEraser() {
+    public void setEraser(int brush_size) {
         //save the current path_color and change it to erase
         eraseMode = true;
         saved_color = path_color;
         path_color = 0xFFFFFFFF;
         paint_canvas.setColor(path_color);
         paint_canvas.setAlpha(255);
-        setupSliderDialog();
+        paint_canvas.setStrokeWidth(brush_size);
     }
 
     /**
@@ -369,6 +297,14 @@ public class CanvasView extends View{
             }
             invalidate();
         }
+    }
+
+    /**
+     * Returns the brush size of the paint_Object
+     * @return Brush Size
+     */
+    public int getBrush_size(){
+        return brush_size;
     }
 
     /**
