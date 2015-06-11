@@ -310,6 +310,7 @@ public class CanvasView extends View{
         saved_color = path_color;
         path_color = 0xFFFFFFFF;
         paint_canvas.setColor(path_color);
+        paint_canvas.setAlpha(255);
         setupSliderDialog();
     }
 
@@ -383,6 +384,10 @@ public class CanvasView extends View{
      * @return Color of the current brush
      */
     public int getCurrentPathColor() {
+        if(eraseMode) {
+            path_color = saved_color;
+            paint_canvas.setColor(path_color);
+        }
         return paint_canvas.getColor();
     }
 }

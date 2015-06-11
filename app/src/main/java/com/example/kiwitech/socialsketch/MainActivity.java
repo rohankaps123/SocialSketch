@@ -101,7 +101,11 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         super.onResume();
         String root = Environment.getExternalStorageDirectory().toString();
         File myDir = new File(root + "/SocialSketch/temp");
-        if(myDir.exists())
-        myDir.delete();
+        if(myDir.exists()){
+            for (File child : myDir.listFiles()){
+                child.delete();
+            }
+            myDir.delete();
+        }
     }
 }
