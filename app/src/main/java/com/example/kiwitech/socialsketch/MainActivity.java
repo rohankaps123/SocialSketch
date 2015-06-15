@@ -1,6 +1,7 @@
 package com.example.kiwitech.socialsketch;
 
 
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import com.example.kiwitech.socialsketch.canvas.CanvasFragment;
 import com.example.kiwitech.socialsketch.canvas.CanvasView;
 import com.example.kiwitech.socialsketch.tools_pane.ToolsPaneFragment;
+import com.google.android.gms.common.AccountPicker;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,10 +48,10 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
          h = new Handler(MainActivity.this.getMainLooper());
-        // Although you need to pass an appropriate context
     }
 
-    @Override
+
+        @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -118,8 +120,8 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             case 7:
                 SaveImage(cview.getCanvas_bitmap());
                 break;
-            case 8:
-                shareImage(cview.getCanvas_bitmap());
+            case 8:cview.sare();
+               // shareImage(cview.getCanvas_bitmap());
         }
     }
 
