@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+
 import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -12,10 +13,9 @@ import android.view.View;
 import com.example.kiwitech.socialsketch.DataTypes.PathObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.io.Serializable;
 import java.util.Stack;
-import com.example.kiwitech.socialsketch.tools_pane.Serializer;
+
 
 /**
  * View for Canvas
@@ -26,6 +26,9 @@ import com.example.kiwitech.socialsketch.tools_pane.Serializer;
  * @since 1.0
  */
 public class CanvasView extends View{
+    /**
+     * Saves data for each segment and can be used to send to other users.
+     */
     private SegmentData segment;
     //Initializing different objects to for the view
     /**
@@ -99,16 +102,16 @@ public class CanvasView extends View{
      */
     protected void setupCanvas() {
         segment = new SegmentData();
-        path_canvas = new PathObject(new SerializablePaint());
+        path_canvas = new PathObject(new Paint());
         canvas = new Canvas();
         brush_size = 10;
         path_color = 0xFF660000;
         path_canvas.getPaint().setColor(path_color);
         path_canvas.getPaint().setAntiAlias(true);
         path_canvas.getPaint().setStrokeWidth(brush_size);
-        path_canvas.getPaint().setStyle(SerializablePaint.Style.STROKE);
-        path_canvas.getPaint().setStrokeJoin(SerializablePaint.Join.ROUND);
-        path_canvas.getPaint().setStrokeCap(SerializablePaint.Cap.ROUND);
+        path_canvas.getPaint().setStyle(Paint.Style.STROKE);
+        path_canvas.getPaint().setStrokeJoin(Paint.Join.ROUND);
+        path_canvas.getPaint().setStrokeCap(Paint.Cap.ROUND);
     }
 
     /**
@@ -132,7 +135,6 @@ public class CanvasView extends View{
      *
      * @param canvas The Canvas to draw on
      */
-
     @Override
     protected void onDraw(Canvas canvas) {
         int alpha = path_canvas.getPaint().getAlpha();
@@ -177,16 +179,18 @@ public class CanvasView extends View{
                 path_canvas.getPath().moveTo(touchX, touchY);
                 PrevX = touchX;
                 PrevY = touchY;
-                segment.addMoveTo((int) touchX, (int) touchY);
+                segment.addPoint(touchX, touchY);
                 //At this point the interaction can be either a path or a point
                 itMoved = false;
                 break;
             case MotionEvent.ACTION_MOVE:
                 //If the finger moves the interaction is a path not a point. Add the the path using when_moving.
                 when_moving(touchX, touchY);
-                segment.addQuadTo((int) touchX, (int) touchY);
+                segment.addPoint(touchX,touchY);
                 break;
             case MotionEvent.ACTION_UP:
+                segment.setColor(path_color);
+                segment.setBrush_size(brush_size);
                 if (!itMoved) {
                     //Interaction is a point. Set its coordinates in path_canvas and add it to the paths stack.
                     path_canvas.getPoint().set((int) touchX, (int) touchY);
@@ -201,10 +205,22 @@ public class CanvasView extends View{
                     canvas.drawPath(path_canvas.getPath(), path_canvas.getPaint());
                     path_canvas.setIsPoint(false);
                     paths.add(path_canvas);
-                    segment.addLineTo((int) touchX, (int) touchY);
+                    segment.addPoint(touchX, touchY);
+                }
+                try {
+                    byte[] by_new = s.serialize(segment);
+                    Log.d("colorPeek", String.valueOf(by_new.length));
+                    str = Base64.encodeToString(by_new, 0);
+                    SegmentData segment = (SegmentData) s.deserialize(Base64.decode(str,0));
+                    Log.d("color", String.valueOf(segment.getColor()));
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
                 // Renew path_canvas and paint_canvas for next interaction
-                path_canvas = new PathObject(new SerializablePaint(path_canvas.getPaint()));
+                path_canvas = new PathObject(new Paint(path_canvas.getPaint()));
                 segment.reset();
                 break;
             default:
@@ -215,6 +231,8 @@ public class CanvasView extends View{
         return true;
     }
 
+    Serializer s = new Serializer();
+    String str = "";
     /**
      * Changes the color on after receiving a message from the dialogue
      */
@@ -333,24 +351,6 @@ public class CanvasView extends View{
             path_canvas.getPaint().setColor(path_color);
         }
         return path_canvas.getPaint().getColor();
-    }
-
-    Serializer s = new Serializer();
-    String str = new String();
-
-    public void sare(){
-        try {
-            byte[] by_new = s.serialize(paths.peek());
-            Log.d("colorPeek", String.valueOf(by_new.length));
-            PathObject redoPath = (PathObject) s.deserialize(by_new);
-            Log.d("color", String.valueOf(redoPath.getPoint().x));
-            str = Base64.encodeToString(by_new,0);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 
 }

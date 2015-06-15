@@ -17,33 +17,33 @@ public class PathObject implements Serializable{
     /**
      * Stores Path
      */
-    private SerializablePath path;
+    private Path path;
     /**
      * Stores the coordinates of the point if the interaction is a point
      */
-    private SerializablePoint point;
+    private Point point;
     /**
      * Stores the paint property of the interaction.
      */
-    private SerializablePaint paint;
+    private Paint paint;
     /**
      * Tells whether the interaction is a point or not
      */
     private boolean isPoint;
 
 
-    public PathObject(SerializablePaint npaint){
-        path = new SerializablePath();
-        point = new SerializablePoint();
+    public PathObject(Paint npaint){
+        path = new Path();
+        point = new Point();
         paint = npaint;
         isPoint = false;
     }
-    public PathObject(SerializablePath npath, SerializablePaint npaint){
+    public PathObject(Path npath, Paint npaint){
         path = npath;
         paint = npaint;
     }
 
-    public PathObject(SerializablePoint npoint, SerializablePaint npaint){
+    public PathObject(Point npoint, Paint npaint){
         point = npoint;
         paint = npaint;
         isPoint = true;
@@ -57,15 +57,15 @@ public class PathObject implements Serializable{
         isPoint = ispoint;
     }
 
-    public SerializablePoint getPoint(){
+    public Point getPoint(){
         return point;
     }
 
-    public SerializablePath getPath(){
+    public Path getPath(){
         return path;
     }
 
-    public SerializablePaint getPaint(){
+    public Paint getPaint(){
         return paint;
     }
 

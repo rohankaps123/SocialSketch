@@ -120,8 +120,8 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             case 7:
                 SaveImage(cview.getCanvas_bitmap());
                 break;
-            case 8:cview.sare();
-               // shareImage(cview.getCanvas_bitmap());
+            case 8:
+                shareImage(cview.getCanvas_bitmap());
         }
     }
 
