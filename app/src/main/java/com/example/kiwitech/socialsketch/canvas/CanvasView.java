@@ -209,10 +209,9 @@ public class CanvasView extends View{
                 }
                 try {
                     byte[] by_new = s.serialize(segment);
-                    Log.d("colorPeek", String.valueOf(by_new.length));
                     str = Base64.encodeToString(by_new, 0);
+                    Log.d("colorPeek", String.valueOf(str.length()));
                     SegmentData segment = (SegmentData) s.deserialize(Base64.decode(str,0));
-                    Log.d("color", String.valueOf(segment.getColor()));
                 }
                 catch (IOException e) {
                     e.printStackTrace();

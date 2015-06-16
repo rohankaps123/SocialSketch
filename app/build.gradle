@@ -4,6 +4,12 @@ android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE-FIREBASE.txt'
+        exclude 'META-INF/NOTICE'
+    }
+
     defaultConfig {
         applicationId "com.example.kiwitech.socialsketch"
         minSdkVersion 21
@@ -24,4 +30,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile project(':color-picker-view')
     compile 'com.google.android.gms:play-services:7.3.0'
+    compile 'com.firebase:firebase-client-android:2.3.0+'
 }

@@ -11,5 +11,9 @@
     <string name="Brush_button">Brush</string>
     <string name="color_button">Color</string>
     <string name="save_button">Save</string>
+    <string name="login">Login</string>
+    <string name="create_account">Create An Account</string>
+    <string name="login_with_google">Login With Google</string>
+    <string name="create_account_new_button">Create</string>
 
 </resources>

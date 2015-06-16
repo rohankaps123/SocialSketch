@@ -1,0 +1,76 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.kiwitech.socialsketch.LoginFragment"
+    android:background="#EEEEEE"
+    android:clickable="true"
+    android:id="@+id/create_account">
+
+    <LinearLayout
+        android:id="@+id/create_account_form"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center">
+
+        <EditText
+            android:layout_marginLeft="20sp"
+            android:hint="Full Name"
+            android:singleLine="true"
+            android:layout_marginRight="20sp"
+            android:layout_marginTop="100sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/create_account_name"
+            android:layout_gravity="center_horizontal"
+            android:imeOptions="actionNext" />
+
+        <EditText
+            android:layout_marginLeft="20sp"
+            android:layout_marginTop="15sp"
+            android:hint="Date Of Birth"
+            android:singleLine="true"
+            android:layout_marginRight="20sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/create_account_dob"
+            android:layout_gravity="center_horizontal"
+            android:imeOptions="actionNext" />
+
+        <EditText
+            android:layout_marginLeft="20sp"
+            android:layout_marginTop="15sp"
+            android:hint="Email ID"
+            android:inputType="textEmailAddress"
+            android:singleLine="true"
+            android:layout_marginRight="20sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/create_account_email"
+            android:layout_gravity="center_horizontal"
+            android:imeOptions="actionNext" />
+
+        <EditText
+            android:hint="Password"
+            android:layout_marginTop="15sp"
+            android:layout_marginLeft="20sp"
+            android:layout_marginRight="20sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/create_account_password"
+            android:layout_gravity="center_horizontal"
+            android:singleLine="true"
+            android:inputType="textPassword"
+            android:imeOptions="actionDone" />
+
+        <Button
+            android:layout_marginTop="35sp"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/create_account_new_button"
+            android:id="@+id/create_account_new_button"
+            android:layout_gravity="center_horizontal" />
+    </LinearLayout>
+</FrameLayout>

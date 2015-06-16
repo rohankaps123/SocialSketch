@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.example.kiwitech.socialsketch.canvas.CanvasFragment;
 import com.example.kiwitech.socialsketch.canvas.CanvasView;
 import com.example.kiwitech.socialsketch.tools_pane.ToolsPaneFragment;
+import com.firebase.client.Firebase;
 import com.google.android.gms.common.AccountPicker;
 
 import java.io.File;
@@ -47,7 +48,10 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-         h = new Handler(MainActivity.this.getMainLooper());
+        h = new Handler(MainActivity.this.getMainLooper());
+        Firebase.setAndroidContext(this);
+        LoginFragment login = new LoginFragment();
+        getFragmentManager().beginTransaction().replace(R.id.main_window,login , "Login").commit();
     }
 
 
