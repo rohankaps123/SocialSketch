@@ -46,15 +46,14 @@
             android:layout_height="wrap_content"
             android:text="@string/login"
             android:id="@+id/login_button"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:imeOptions="actionGo"/>
 
-        <Button
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/login_with_google"
+        <com.google.android.gms.common.SignInButton
             android:id="@+id/login_google"
-            android:layout_gravity="center_horizontal" />
+            android:layout_width="170sp"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content" />
 
         <Button
             android:textSize="10sp"

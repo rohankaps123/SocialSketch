@@ -42,7 +42,7 @@ import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
  */
 public class MainActivity extends Activity implements ToolsPaneFragment.OnButtonSelectedListener,ColorPickerDialogFragment.ColorPickerDialogListener{
     private Handler h;
-
+    LoginFragment login = new LoginFragment();
     // on create displays the main activity xml
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +50,6 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         setContentView(R.layout.activity_main);
         h = new Handler(MainActivity.this.getMainLooper());
         Firebase.setAndroidContext(this);
-        LoginFragment login = new LoginFragment();
         getFragmentManager().beginTransaction().replace(R.id.main_window,login , "Login").commit();
     }
 
@@ -87,6 +86,12 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+        if (id == R.id.action_logout) {
+            login.logout();
+            Toast.makeText(this, "Successfully logged out", Toast.LENGTH_SHORT).show();
+            getFragmentManager().beginTransaction().replace(R.id.main_window, login, "Login").commit();
             return true;
         }
 
@@ -304,4 +309,12 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     public void onDialogDismissed(int dialogId) {
     }
 
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == login.RC_GOOGLE_LOGIN) {
+            login.onActivityResult(requestCode, resultCode, data);
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
 }
