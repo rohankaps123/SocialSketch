@@ -24,19 +24,22 @@
             android:layout_height="wrap_content"
             android:id="@+id/create_account_name"
             android:layout_gravity="center_horizontal"
-            android:imeOptions="actionNext" />
+            android:imeOptions="actionNext"
+            android:nextFocusForward="@+id/create_account_dob"/>
 
         <EditText
             android:layout_marginLeft="20sp"
             android:layout_marginTop="15sp"
             android:hint="Date Of Birth"
+            android:inputType="date"
             android:singleLine="true"
             android:layout_marginRight="20sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/create_account_dob"
             android:layout_gravity="center_horizontal"
-            android:imeOptions="actionNext" />
+            android:imeOptions="actionNext"
+            android:nextFocusForward="@+id/create_account_email"/>
 
         <EditText
             android:layout_marginLeft="20sp"
@@ -49,7 +52,8 @@
             android:layout_height="wrap_content"
             android:id="@+id/create_account_email"
             android:layout_gravity="center_horizontal"
-            android:imeOptions="actionNext" />
+            android:imeOptions="actionNext"
+            android:nextFocusForward="@+id/create_account_password" />
 
         <EditText
             android:hint="Password"

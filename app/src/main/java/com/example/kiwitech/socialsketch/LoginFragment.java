@@ -36,14 +36,17 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
- * A simple {@link Fragment} subclass.
+ * Login Fragment
+ * Manages the login using firebase
+ *
+ * @author Rohan Kapoor
+ * @since 1.0
  */
 public class LoginFragment extends Fragment implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
-
+    //Get Tag to be used in the error codes
     private static final String TAG = LoginFragment.class.getSimpleName();
 
     /* A dialog that is presented until the Firebase authentication finished. */
@@ -72,6 +75,9 @@ public class LoginFragment extends Fragment implements
      * sign-in. */
     private ConnectionResult mGoogleConnectionResult;
 
+    /**
+     * Result reference to the fragment callback
+     */
     public static final int RESULT_OK = -1;
 
 
@@ -79,6 +85,9 @@ public class LoginFragment extends Fragment implements
         // Required empty public constructor
     }
 
+    /**
+     * Reference to the login fragment
+     */
     private Fragment thisFragment = this;
 
     @Override
@@ -123,21 +132,28 @@ public class LoginFragment extends Fragment implements
         return thisView;
     }
 
+    /**
+     * On click listener for the Buttons
+     */
     private View.OnClickListener ButtonHandler = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
             switch (v.getId()) {
                 case R.id.login_button:
+                    //close the keyboard on click
                     imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                    //login user with email password
                     loginUser();
                     break;
                 case R.id.create_account_button:
+                    // create a new account. Switches to a new fragment for creating account
                     imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                     CreateNewUserFragment create = new CreateNewUserFragment();
                     getFragmentManager().beginTransaction().replace(R.id.login_window,create , "Create New user").commit();
                     break;
                 case R.id.login_google:
+                    // connect to google API
                     mGoogleLoginClicked = true;
                     if (!mGoogleApiClient.isConnecting()) {
                         if (mGoogleConnectionResult != null) {
@@ -173,14 +189,20 @@ public class LoginFragment extends Fragment implements
         }
     }
 
+    /**
+     * Logins the user with email and password
+     */
     private void loginUser(){
         View thisView = thisFragment.getView();
+        //get email and password
         EditText email = (EditText) thisView.findViewById(R.id.login_email_id);
         EditText password = (EditText) thisView.findViewById(R.id.login_password);
         mAuthProgressDialog.show();
+        //authenticate with firebase
         mFirebaseRef.authWithPassword(email.getText().toString(), password.getText().toString(), new Firebase.AuthResultHandler() {
             @Override
             public void onAuthenticated(AuthData authData) {
+                //Set authentication data
                 setAuthenticatedUser(authData);
             }
 

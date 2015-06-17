@@ -1,7 +1,6 @@
 package com.example.kiwitech.socialsketch;
 
 
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -24,7 +23,6 @@ import com.example.kiwitech.socialsketch.canvas.CanvasFragment;
 import com.example.kiwitech.socialsketch.canvas.CanvasView;
 import com.example.kiwitech.socialsketch.tools_pane.ToolsPaneFragment;
 import com.firebase.client.Firebase;
-import com.google.android.gms.common.AccountPicker;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,8 +39,12 @@ import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
  * @since 1.0
  */
 public class MainActivity extends Activity implements ToolsPaneFragment.OnButtonSelectedListener,ColorPickerDialogFragment.ColorPickerDialogListener{
+    // Handler for threads running on the main activity
     private Handler h;
-    LoginFragment login = new LoginFragment();
+
+    //keeps track of of the login fragment
+    private LoginFragment login = new LoginFragment();
+
     // on create displays the main activity xml
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +55,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         getFragmentManager().beginTransaction().replace(R.id.main_window,login , "Login").commit();
     }
 
-
+    // Creates the options menu
         @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -62,7 +64,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     }
 
     /**
-     * Deletes the temporaary files on resume after sharing
+     * Deletes the temporary files on resume after sharing
      */
     @Override
     public void onResume(){
@@ -77,6 +79,11 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         }
     }
 
+    /**
+     * On Options menu item selected
+     * @param item do something if this item is selected
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -89,12 +96,12 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             return true;
         }
         if (id == R.id.action_logout) {
+            //logout user when ever logout is selected and bring up the login fragment
             login.logout();
             Toast.makeText(this, "Successfully logged out", Toast.LENGTH_SHORT).show();
             getFragmentManager().beginTransaction().replace(R.id.main_window, login, "Login").commit();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -309,7 +316,12 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     public void onDialogDismissed(int dialogId) {
     }
 
-
+    /**
+     * When this activity is called back after login from google servers
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == login.RC_GOOGLE_LOGIN) {
             login.onActivityResult(requestCode, resultCode, data);
