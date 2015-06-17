@@ -5,7 +5,6 @@ import android.graphics.Path;
 import android.graphics.Point;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  * PathObject is a class that stores the data for each interaction between the finger
@@ -31,40 +30,75 @@ public class PathObject implements Serializable{
      */
     private boolean isPoint;
 
-
+    /**
+     * Constructs a new path object with a given paint object
+     * @param npaint paint object
+     */
     public PathObject(Paint npaint){
         path = new Path();
         point = new Point();
         paint = npaint;
         isPoint = false;
     }
+
+    /**
+     * Creates a new pathobject object using a paint object and a path object
+     * @param npath path object
+     * @param npaint paint object
+     */
     public PathObject(Path npath, Paint npaint){
         path = npath;
         paint = npaint;
     }
 
+    /**
+     * Creates a new pathobject object using a paint object and a point object
+     * @param npoint point object
+     * @param npaint paint object
+     */
     public PathObject(Point npoint, Paint npaint){
         point = npoint;
         paint = npaint;
         isPoint = true;
     }
 
+    /**
+     * Check if the Object is a path or a Point
+     * @return true if its a point
+     */
     public boolean CheckifPoint(){
         return isPoint;
     }
 
+    /**
+     * Set that the object is a point
+     * @param ispoint true if the path is a point
+     */
     public void setIsPoint(boolean ispoint){
         isPoint = ispoint;
     }
 
+    /**
+     * Get the  stored Point object
+     * @return Point object
+     */
     public Point getPoint(){
         return point;
     }
+
+    /**\
+     * Get the stored Path object
+     * @return path object
+     */
 
     public Path getPath(){
         return path;
     }
 
+    /**
+     * Get the stored paint object
+     * @return paint object
+     */
     public Paint getPaint(){
         return paint;
     }

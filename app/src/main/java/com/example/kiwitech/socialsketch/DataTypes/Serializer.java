@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+/**
+ * A class that is used to serialize and deserialize the the SegmentData objects
+ * @since 1.0
+ */
 public class Serializer {
     public static byte[] serialize(Object obj) throws IOException {
         ByteArrayOutputStream b = new ByteArrayOutputStream();

@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 /**
  * Represents a Pair
+ * @author Rohan Kapoor
+ * @since 1.0
  */
 public class Pair<X,Y> implements Serializable{
     private X x;
