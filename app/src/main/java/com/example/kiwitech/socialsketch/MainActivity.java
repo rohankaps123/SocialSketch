@@ -145,6 +145,13 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         }
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if(login!= null)
+            getFragmentManager().beginTransaction().remove(login).commit();
+    }
 
 
     /**
