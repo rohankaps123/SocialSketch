@@ -20,9 +20,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.kiwitech.socialsketch.DataTypes.SSUser;
 import com.firebase.client.AuthData;
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableAuthException;
@@ -30,6 +35,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
 
 import java.io.IOException;
@@ -90,10 +96,11 @@ public class LoginFragment extends Fragment implements
      */
     private Fragment thisFragment = this;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        getActivity().getActionBar().hide();
         // Inflate the layout for this fragment
         View thisView = inflater.inflate(R.layout.fragment_login, container, false);
         mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
@@ -110,6 +117,8 @@ public class LoginFragment extends Fragment implements
                 .addOnConnectionFailedListener(this)
                 .addApi(Plus.API)
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
+                .addScope(Plus.SCOPE_PLUS_PROFILE)
+                .addScope(new Scope("https://www.googleapis.com/auth/userinfo.email"))
                 .build();
 
                /* Setup the progress dialog that is displayed later when authenticating with Firebase */
@@ -241,9 +250,10 @@ public class LoginFragment extends Fragment implements
      */
     private void setAuthenticatedUser(AuthData authData) {
         if(authData !=null){
-        mAuthData = authData;
-        Toast.makeText(getActivity(), "Successfully logged in", Toast.LENGTH_SHORT).show();
-        getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
+            mAuthData = authData;
+            Toast.makeText(getActivity(), "Successfully logged in", Toast.LENGTH_SHORT).show();
+            getActivity().getActionBar().show();
+            getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
         }
         else{
             return;
@@ -266,7 +276,6 @@ public class LoginFragment extends Fragment implements
      * Utility class for authentication results
      */
     private class AuthResultHandler implements Firebase.AuthResultHandler {
-
         private final String provider;
 
         public AuthResultHandler(String provider) {
@@ -275,10 +284,36 @@ public class LoginFragment extends Fragment implements
 
         @Override
         public void onAuthenticated(AuthData authData) {
+            AddUserIfNotExist(authData);
             mAuthProgressDialog.hide();
             Log.i(TAG, provider + " auth successful");
             setAuthenticatedUser(authData);
         }
+
+        /**
+         * Add user to the firebase if it does not already exist.
+         * @param authData authentication data to be passed
+         */
+        private void AddUserIfNotExist(final AuthData authData) {
+            final String email = authData.getProviderData().get("email").toString();
+            mFirebaseRef.child("users").orderByChild("email").equalTo(email)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot querySnapshot) {
+                            if(querySnapshot.getChildrenCount() != 0){
+                            }
+                            else{
+                                SSUser nuser = new SSUser(authData.getProviderData().get("displayName").toString(),email,"","");
+                                Firebase usersRef =  mFirebaseRef.child("users");
+                                usersRef.push().setValue(nuser);
+                            }
+                        }
+                        @Override
+                        public void onCancelled(FirebaseError error) {
+                        }
+                    });
+        }
+
 
         @Override
         public void onAuthenticationError(FirebaseError firebaseError) {

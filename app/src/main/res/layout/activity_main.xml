@@ -6,36 +6,58 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_window"
     tools:context=".MainActivity">
-
         <LinearLayout
             android:id="@+id/fragment_holder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+            <LinearLayout
+                android:id="@+id/friend_button_holder"
+                android:layout_width="fill_parent"
+                android:layout_marginTop="5sp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <Button
+                    android:textSize="10sp"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="0sp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_friend_button"
+                    android:id="@+id/add_friend_button"
+                    android:layout_weight="1" />
+                <Button
+                    android:textSize="10sp"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="0sp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/choose_friends_button"
+                    android:id="@+id/choose_friends_button"
+                    android:layout_gravity="center_horizontal" />
+            </LinearLayout>
+            <fragment
+                android:name="com.example.kiwitech.socialsketch.canvas.CanvasFragment"
+                tools:context="com.example.kiwitech.socialsketch.MainActivity"
+                android:id="@+id/Canvas_Fragment"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="10"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="15dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
+            </fragment>
 
-        <fragment
-            android:name="com.example.kiwitech.socialsketch.canvas.CanvasFragment"
-            tools:context="com.example.kiwitech.socialsketch.MainActivity"
-            android:id="@+id/Canvas_Fragment"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="10"
-            android:layout_marginTop="50dp"
-            android:layout_marginBottom="15dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp">
-        </fragment>
-
-        <fragment
-            android:name="com.example.kiwitech.socialsketch.tools_pane.ToolsPaneFragment"
-            tools:context="com.example.kiwitech.socialsketch.MainActivity"
-            android:id="@+id/tools"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="20dp">
-        </fragment>
+            <fragment
+                android:name="com.example.kiwitech.socialsketch.tools_pane.ToolsPaneFragment"
+                tools:context="com.example.kiwitech.socialsketch.MainActivity"
+                android:id="@+id/tools"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="20dp">
+            </fragment>
     </LinearLayout>
 </FrameLayout>

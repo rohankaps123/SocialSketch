@@ -3,32 +3,21 @@ package com.example.kiwitech.socialsketch;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.kiwitech.socialsketch.canvas.CanvasFragment;
 import com.example.kiwitech.socialsketch.canvas.CanvasView;
 import com.example.kiwitech.socialsketch.tools_pane.ToolsPaneFragment;
 import com.firebase.client.Firebase;
-
 import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Random;
-
 import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
 
 
@@ -55,6 +44,29 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         h = new Handler(MainActivity.this.getMainLooper());
         Firebase.setAndroidContext(this);
         getFragmentManager().beginTransaction().replace(R.id.main_window,login , "Login").commit();
+        Button addFriend = (Button) findViewById(R.id.add_friend_button);
+        addFriend.setOnClickListener(ButtonHandler);
+    }
+
+    /**
+     * On click listener for the Buttons
+     */
+    private View.OnClickListener ButtonHandler = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.add_friend_button:
+                    setupFriendSelector();
+                    break;
+            }
+        }
+    };
+
+    private void setupFriendSelector() {
+        Dialog friendSelector = new Dialog(this);
+        friendSelector.setContentView(R.layout.slider_size_dialog);
+        //set the title
+        friendSelector.setTitle("Add Friends");
     }
 
     // Creates the options menu
@@ -100,6 +112,9 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         if (id == R.id.action_logout) {
             //logout user when ever logout is selected and bring up the login fragment
             login.logout();
+            CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
+            CanvasView cview = (CanvasView) canvasF.getView();
+            cview.clearCanvas();
             Toast.makeText(this, "Successfully logged out", Toast.LENGTH_SHORT).show();
             getFragmentManager().beginTransaction().replace(R.id.main_window, login, "Login").commit();
             return true;

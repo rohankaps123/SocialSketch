@@ -76,5 +76,13 @@
             android:text="@string/create_account_new_button"
             android:id="@+id/create_account_new_button"
             android:layout_gravity="center_horizontal" />
+        <Button
+            android:layout_marginTop="5sp"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/create_account_back_button"
+            android:id="@+id/create_account_back_button"
+            android:layout_gravity="center_horizontal" />
     </LinearLayout>
 </FrameLayout>
