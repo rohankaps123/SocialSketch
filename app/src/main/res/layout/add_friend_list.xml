@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/friend_list_add">
+
+<LinearLayout
+    android:id="@+id/friend_list_view_searchbar"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+    <EditText
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:ems="10"
+        android:layout_marginTop="15sp"
+        android:layout_marginLeft="10sp"
+        android:layout_weight="5"
+        android:hint="Email"
+        android:singleLine="true"
+        android:id="@+id/add_friend_searchbox"
+        android:layout_gravity="center_horizontal" />
+    <Button
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="0sp"
+        android:layout_weight="2"
+        android:layout_marginLeft="5sp"
+        android:layout_height="wrap_content"
+        android:text="@string/Search"
+        android:id="@+id/add_friend_list_search"
+        android:layout_gravity="center_horizontal"
+        android:imeOptions="actionSearch"/>
+
+    </LinearLayout>
+
+    <ListView
+        android:layout_width="ma
+        android:id="@+id/friend_list_view"
+        android:layout_gravity="center_horizontal" />
+</LinearLayout>

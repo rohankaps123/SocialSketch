@@ -76,17 +76,15 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.add_friend_button:
-                    setupFriendSelector();
+                    setupaddFriendSelector();
                     break;
             }
         }
     };
 
-    private void setupFriendSelector() {
-        Dialog friendSelector = new Dialog(this);
-        friendSelector.setContentView(R.layout.slider_size_dialog);
-        //set the title
-        friendSelector.setTitle("Add Friends");
+    private void setupaddFriendSelector() {
+        AddfriendSearch nfadd = new AddfriendSearch();
+        getFragmentManager().beginTransaction().replace(R.id.main_window,nfadd , "add friends").commit();
     }
 
     // Creates the options menu
@@ -115,7 +113,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             if(login == null){
                 login = new LoginFragment();
             }
-            getFragmentManager().beginTransaction().replace(R.id.main_window,login , "Login").commit();
+            getFragmentManager().beginTransaction().replace(R.id.main_window, login, "Login").commit();
         }
         else if(state.equals("createnew")){
             if(login == null){
