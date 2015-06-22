@@ -65,6 +65,7 @@ public class CreateNewUserFragment extends Fragment {
                     createNewUser();
                     break;
                 case R.id.create_account_back_button:
+                    MainActivity.setState("login");
                     getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
                     break;
             }
@@ -105,11 +106,13 @@ public class CreateNewUserFragment extends Fragment {
                 usersRef.push().setValue(nuser);
                 mCreateProgressDialog.hide();
                 Toast.makeText(getActivity(),"Successfully created user account" , Toast.LENGTH_SHORT).show();
+                MainActivity.setState("login");
                 getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
             }
             @Override
             public void onError(FirebaseError firebaseError) {
                 mCreateProgressDialog.hide();
+                MainActivity.setState("createnew");
                 Toast.makeText(getActivity(), "There was an error creating your account", Toast.LENGTH_SHORT).show();
             }
         });

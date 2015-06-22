@@ -141,6 +141,7 @@ public class LoginFragment extends Fragment implements
         return thisView;
     }
 
+
     /**
      * On click listener for the Buttons
      */
@@ -151,15 +152,16 @@ public class LoginFragment extends Fragment implements
             switch (v.getId()) {
                 case R.id.login_button:
                     //close the keyboard on click
-                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(),0);
                     //login user with email password
                     loginUser();
                     break;
                 case R.id.create_account_button:
                     // create a new account. Switches to a new fragment for creating account
-                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(),0);
                     CreateNewUserFragment create = new CreateNewUserFragment();
-                    getFragmentManager().beginTransaction().replace(R.id.login_window,create , "Create New user").commit();
+                    getFragmentManager().beginTransaction().replace(R.id.login_window,create , "Create New user").addToBackStack("Create New user").commit();
+                    MainActivity.setState("createnew");
                     break;
                 case R.id.login_google:
                     // connect to google API
@@ -195,6 +197,8 @@ public class LoginFragment extends Fragment implements
             }
             /* Update authenticated user and show login buttons */
             setAuthenticatedUser(null);
+            MainActivity.setState("login");
+
         }
     }
 
@@ -253,12 +257,14 @@ public class LoginFragment extends Fragment implements
             mAuthData = authData;
             Toast.makeText(getActivity(), "Successfully logged in", Toast.LENGTH_SHORT).show();
             getActivity().getActionBar().show();
+            MainActivity.setState("canvas");
             getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
         }
         else{
             return;
         }
     }
+
 
     /**
      * Show errors to users

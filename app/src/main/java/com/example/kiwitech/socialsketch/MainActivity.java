@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,9 +33,13 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         ColorPickerDialogFragment.ColorPickerDialogListener{
     // Handler for threads running on the main activity
     private Handler h;
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     //keeps track of of the login fragment
     private LoginFragment login = new LoginFragment();
+
+    //Current state of the activity
+    private static String state;
 
     // on create displays the main activity xml
     @Override
@@ -43,9 +48,24 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         setContentView(R.layout.activity_main);
         h = new Handler(MainActivity.this.getMainLooper());
         Firebase.setAndroidContext(this);
+        MainActivity.setState("login");
         getFragmentManager().beginTransaction().replace(R.id.main_window,login , "Login").commit();
         Button addFriend = (Button) findViewById(R.id.add_friend_button);
         addFriend.setOnClickListener(ButtonHandler);
+    }
+
+    //Set State of the Application
+    public static void setState(String cstate){
+        state = cstate;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() > 0) {
+            getFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     /**
@@ -78,7 +98,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     }
 
     /**
-     * Deletes the temporary files on resume after sharing
+     * Deletes the temporary files on resume after sharing and maintains the state of the application
      */
     @Override
     public void onResume(){
@@ -91,7 +111,27 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             }
             myDir.delete();
         }
+        if(state.equals("login")){
+            if(login == null){
+                login = new LoginFragment();
+            }
+            getFragmentManager().beginTransaction().replace(R.id.main_window,login , "Login").commit();
+        }
+        else if(state.equals("createnew")){
+            if(login == null){
+                login = new LoginFragment();
+            }
+            getFragmentManager().beginTransaction().replace(R.id.main_window, login, "Login").commit();
+            CreateNewUserFragment create = (CreateNewUserFragment) getFragmentManager().findFragmentById(R.layout.fragment_create_new_user);
+            if( create == null){
+                create = new CreateNewUserFragment();
+            }
+            getFragmentManager().beginTransaction().replace(R.id.login_window,create , "Create New user").commit();
+        }
+        else
+        getActionBar().show();
     }
+
 
     /**
      * On Options menu item selected
@@ -160,13 +200,6 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        if(login!= null)
-            getFragmentManager().beginTransaction().remove(login).commit();
-    }
 
 
     /**
