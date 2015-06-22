@@ -3,12 +3,13 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="20sp"
     android:id="@+id/friend_list_add">
 
 <LinearLayout
     android:id="@+id/friend_list_view_searchbar"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="horizontal">
     <EditText
         android:layout_width="0sp"
@@ -36,7 +37,13 @@
     </LinearLayout>
 
     <ListView
-        android:layout_width="ma
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:id="@+id/friend_list_view"
-        android:layout_gravity="center_horizontal" />
+        android:layout_marginTop="10sp"
+        android:layout_marginLeft="10sp"
+        android:layout_marginRight="10sp"
+        android:layout_marginBottom="10sp"
+        android:layout_gravity="center_horizontal"
+        android:scrollbarAlwaysDrawVerticalTrack="true"/>
 </LinearLayout>
