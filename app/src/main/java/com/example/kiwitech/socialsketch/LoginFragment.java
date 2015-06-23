@@ -273,8 +273,8 @@ public class LoginFragment extends Fragment implements
     }
 
     private void setUserOnlineDB() {
-        Log.e(TAG, MainActivity.getThisUserID());
-        mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("online").setValue(true);
+        String userID = MainActivity.getThisUserID();
+        mFirebaseRef.child("users").child(userID).child("online").setValue(true);
     }
 
     private void setUserID(String email) {
