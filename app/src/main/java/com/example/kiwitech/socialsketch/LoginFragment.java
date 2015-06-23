@@ -198,8 +198,13 @@ public class LoginFragment extends Fragment implements
             /* Update authenticated user and show login buttons */
             setAuthenticatedUser(null);
             MainActivity.setState("login");
+            setUserOffineDB();
 
         }
+    }
+
+    private void setUserOffineDB() {
+        mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("online").setValue(false);
     }
 
     /**
@@ -255,6 +260,8 @@ public class LoginFragment extends Fragment implements
     private void setAuthenticatedUser(AuthData authData) {
         if(authData !=null){
             mAuthData = authData;
+            setUserID(authData.getProviderData().get("email").toString());
+            setUserOnlineDB();
             Toast.makeText(getActivity(), "Successfully logged in", Toast.LENGTH_SHORT).show();
             getActivity().getActionBar().show();
             MainActivity.setState("canvas");
@@ -263,6 +270,30 @@ public class LoginFragment extends Fragment implements
         else{
             return;
         }
+    }
+
+    private void setUserOnlineDB() {
+        Log.e(TAG, MainActivity.getThisUserID());
+        mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("online").setValue(true);
+    }
+
+    private void setUserID(String email) {
+        mFirebaseRef.child("users").orderByChild("email").equalTo(email)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot querySnapshot) {
+                        if(querySnapshot.getChildrenCount() != 0){
+                            for(DataSnapshot child : querySnapshot.getChildren()){
+                                MainActivity.setThisUserID(child.getKey());
+                            }
+                        }
+                        else{
+                        }
+                    }
+                    @Override
+                    public void onCancelled(FirebaseError error) {
+                    }
+                });
     }
 
 

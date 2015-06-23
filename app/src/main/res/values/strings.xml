@@ -16,8 +16,7 @@
     <string name="login_with_google">Login With Google</string>
     <string name="create_account_new_button">Create</string>
     <string name="create_account_back_button">Back</string>
-    <string name="add_friend_button">Add Friend</string>
     <string name="choose_friends_button">Choose Friends to Draw With</string>
-    <string name="Search">Search</string>
+    <string name="addfriend">Add friend</string>
 
 </resources>

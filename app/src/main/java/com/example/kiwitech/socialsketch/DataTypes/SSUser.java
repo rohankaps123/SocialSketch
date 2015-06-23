@@ -13,12 +13,14 @@ public class SSUser {
     private String email;
     private String password;
     private String dob;
+    private Boolean online;
 
     public SSUser(String name, String email, String password, String dob){
         this.name = name;
         this.email = email;
         this.password = password;
         this.dob = dob;
+        online = false;
     }
 
     public String getEmail() {
@@ -37,4 +39,11 @@ public class SSUser {
         return password;
     }
 
+    public Boolean getOnline() {
+        return online;
+    }
+
+    public void setOnline(Boolean online) {
+        this.online = online;
+    }
 }

@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/add_friend_list">
+    android:id="@+id/friend_list_item">
 
     <TextView
         android:layout_width="0sp"
         android:layout_height="wrap_content"
-        android:id="@+id/add_friend_list_email"
+        android:id="@+id/friend_list_item_email"
         android:textSize="25sp"
         android:layout_marginLeft="30sp"
         android:layout_weight="4"
@@ -17,7 +18,7 @@
     <CheckBox
         android:layout_width="0sp"
         android:layout_height="wrap_content"
-        android:id="@+id/add_friend_list_checkbox"
+        android:id="@+id/friend_list_item_checkbox"
         android:layout_weight="1"
         android:checked="false"
         android:layout_gravity="center"/>

@@ -2,16 +2,13 @@ package com.example.kiwitech.socialsketch;
 
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 import com.example.kiwitech.socialsketch.canvas.CanvasFragment;
@@ -30,16 +27,16 @@ import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
  * @since 1.0
  */
 public class MainActivity extends Activity implements ToolsPaneFragment.OnButtonSelectedListener,
-        ColorPickerDialogFragment.ColorPickerDialogListener{
+        ColorPickerDialogFragment.ColorPickerDialogListener,ChooseFriendFragment.ChooseFriendFragmentListener {
     // Handler for threads running on the main activity
     private Handler h;
     private static final String TAG = MainActivity.class.getSimpleName();
-
     //keeps track of of the login fragment
     private LoginFragment login = new LoginFragment();
 
     //Current state of the activity
     private static String state;
+    private static String thisUserID = "";
 
     // on create displays the main activity xml
     @Override
@@ -50,8 +47,16 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         Firebase.setAndroidContext(this);
         MainActivity.setState("login");
         getFragmentManager().beginTransaction().replace(R.id.main_window,login , "Login").commit();
-        Button addFriend = (Button) findViewById(R.id.add_friend_button);
+        Button addFriend = (Button) findViewById(R.id.choose_friends_button);
         addFriend.setOnClickListener(ButtonHandler);
+    }
+
+    public static void setThisUserID(String ID){
+        thisUserID = ID;
+    }
+
+    public static String getThisUserID(){
+        return thisUserID;
     }
 
     //Set State of the Application
@@ -75,7 +80,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.add_friend_button:
+                case R.id.choose_friends_button:
                     setupaddFriendSelector();
                     break;
             }
@@ -83,7 +88,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     };
 
     private void setupaddFriendSelector() {
-        AddfriendSearch nfadd = new AddfriendSearch();
+        ChooseFriendFragment nfadd = new ChooseFriendFragment();
         getFragmentManager().beginTransaction().replace(R.id.main_window,nfadd , "add friends").commit();
     }
 
@@ -227,5 +232,10 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     public void onDialogDismissed(int dialogId) {
         CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
         canvasF.onDialogDismissed(dialogId);
+    }
+
+    @Override
+    public void ChooseFriendFragmentInteraction(String id) {
+
     }
 }
