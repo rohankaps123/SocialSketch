@@ -158,9 +158,9 @@ public class LoginFragment extends Fragment implements
                     break;
                 case R.id.create_account_button:
                     // create a new account. Switches to a new fragment for creating account
-                    imm.hideSoftInputFromWindow(v.getWindowToken(),0);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     CreateNewUserFragment create = new CreateNewUserFragment();
-                    getFragmentManager().beginTransaction().replace(R.id.login_window,create , "Create New user").addToBackStack("Create New user").commit();
+                    getFragmentManager().beginTransaction().replace(R.id.login_window,create , "Create New user").addToBackStack("Main activity").commit();
                     MainActivity.setState("createnew");
                     break;
                 case R.id.login_google:
@@ -253,15 +253,38 @@ public class LoginFragment extends Fragment implements
         }
     }
 
+    /**
+     * Add user to the firebase if it does not already exist.
+     * @param authData authentication data to be passed
+     */
+    private void AddUserIfNotExist(final AuthData authData) {
+        final String email = authData.getProviderData().get("email").toString();
+        mFirebaseRef.child("users").orderByChild("email").equalTo(email)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot querySnapshot) {
+                        if (querySnapshot.getChildrenCount() != 0) {
+                        } else {
+                            SSUser nuser = new SSUser(authData.getProviderData().get("displayName").toString(), email, "", "");
+                            Firebase usersRef = mFirebaseRef.child("users");
+                            usersRef.push().setValue(nuser);
+                            setUserIDOnlineDB(authData.getProviderData().get("email").toString());
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError error) {
+                    }
+                });
+    }
 
     /**
      * Once a user is logged in, take the mAuthData provided from Firebase and "use" it.
      */
     private void setAuthenticatedUser(AuthData authData) {
-        if(authData !=null){
+        if (authData !=null){
             mAuthData = authData;
-            setUserID(authData.getProviderData().get("email").toString());
-            setUserOnlineDB();
+            setUserIDOnlineDB(authData.getProviderData().get("email").toString());
             Toast.makeText(getActivity(), "Successfully logged in", Toast.LENGTH_SHORT).show();
             getActivity().getActionBar().show();
             MainActivity.setState("canvas");
@@ -272,12 +295,8 @@ public class LoginFragment extends Fragment implements
         }
     }
 
-    private void setUserOnlineDB() {
-        String userID = MainActivity.getThisUserID();
-        mFirebaseRef.child("users").child(userID).child("online").setValue(true);
-    }
 
-    private void setUserID(String email) {
+    private void setUserIDOnlineDB(String email) {
         mFirebaseRef.child("users").orderByChild("email").equalTo(email)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -285,6 +304,7 @@ public class LoginFragment extends Fragment implements
                         if(querySnapshot.getChildrenCount() != 0){
                             for(DataSnapshot child : querySnapshot.getChildren()){
                                 MainActivity.setThisUserID(child.getKey());
+                                mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("online").setValue(true);
                             }
                         }
                         else{
@@ -321,34 +341,10 @@ public class LoginFragment extends Fragment implements
 
         @Override
         public void onAuthenticated(AuthData authData) {
-            AddUserIfNotExist(authData);
             mAuthProgressDialog.hide();
             Log.i(TAG, provider + " auth successful");
+            AddUserIfNotExist(authData);
             setAuthenticatedUser(authData);
-        }
-
-        /**
-         * Add user to the firebase if it does not already exist.
-         * @param authData authentication data to be passed
-         */
-        private void AddUserIfNotExist(final AuthData authData) {
-            final String email = authData.getProviderData().get("email").toString();
-            mFirebaseRef.child("users").orderByChild("email").equalTo(email)
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot querySnapshot) {
-                            if(querySnapshot.getChildrenCount() != 0){
-                            }
-                            else{
-                                SSUser nuser = new SSUser(authData.getProviderData().get("displayName").toString(),email,"","");
-                                Firebase usersRef =  mFirebaseRef.child("users");
-                                usersRef.push().setValue(nuser);
-                            }
-                        }
-                        @Override
-                        public void onCancelled(FirebaseError error) {
-                        }
-                    });
         }
 
 

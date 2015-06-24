@@ -89,7 +89,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
 
     private void setupaddFriendSelector() {
         ChooseFriendFragment nfadd = new ChooseFriendFragment();
-        getFragmentManager().beginTransaction().replace(R.id.main_window,nfadd , "add friends").commit();
+        getFragmentManager().beginTransaction().replace(R.id.main_window, nfadd, "Choose friends").addToBackStack("Main activity").commit();
     }
 
     // Creates the options menu
@@ -133,6 +133,8 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         }
         else
         getActionBar().show();
+        getActionBar().setDisplayHomeAsUpEnabled(false);
+
     }
 
 
@@ -161,6 +163,11 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             Toast.makeText(this, "Successfully logged out", Toast.LENGTH_SHORT).show();
             getFragmentManager().beginTransaction().replace(R.id.main_window, login, "Login").commit();
             return true;
+        }
+
+        if (id == android.R.id.home){
+        onBackPressed();
+        return true;
         }
         return super.onOptionsItemSelected(item);
     }

@@ -45,7 +45,7 @@ public class CreateNewUserFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View thisView = inflater.inflate(R.layout.fragment_create_new_user, container, false);
-       // getActivity().getActionBar().hide();
+        getActivity().getActionBar().hide();
         Button create_new = (Button) thisView.findViewById(R.id.create_account_new_button);
         Button back = (Button) thisView.findViewById(R.id.create_account_back_button);
         create_new.setOnClickListener(ButtonHandler);
