@@ -27,23 +27,56 @@ import java.util.Collections;
 
 
 /**
- * A fragment representing a list of Users.
- * <p/>
- * <p/>
+ * A fragment representing a list of friends.
  * Activities containing this fragment MUST implement the {@link ChooseFriendFragmentListener}
  * interface.
+ * @author Rohan Kapoor
+ * @since 1.0
  */
 public class ChooseFriendFragment extends Fragment {
+    /**
+     * Tag for logging data
+     */
     private static final String TAG = ChooseFriendFragment.class.getSimpleName();
+    /**
+     * Listener class to be implemented in the class that implements ChooseFriendFragment
+     */
     private ChooseFriendFragmentListener mListener;
+    /**
+     * ListView that shows all the friends
+     */
     private ListView userlist;
+    /**
+     * Reference to the database
+     */
     final Firebase mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
+    /**
+     * List of all the existing friends
+     */
     private ArrayList<String> friendslist;
+    /**
+     * EditText that contains the email to search from
+     */
     private EditText email_search;
+    /**
+     * String that will be searched (email)
+     */
     private String searchstr;
+    /**
+     * Listener to listen for addd child events in the database
+     */
     private ChildEventListener newfriendsListener;
+    /**
+     * Adapter for listView
+     */
     ArrayAdapter<String> friendlistadapter;
+    /**
+     * context for the fragment
+     */
     private Context thiscontext;
+    /**
+     * Arraylist for storing the emails for the users got using userID
+     */
     private ArrayList<String> friendslistemail;
 
     /*
@@ -53,15 +86,18 @@ public class ChooseFriendFragment extends Fragment {
     public ChooseFriendFragment() {
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Sets the back button in the actionbar
         getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // On Back button in action bar pressed return to main activity
         switch (item.getItemId()) {
             case android.R.id.home:
                 getActivity().onBackPressed();
@@ -87,13 +123,18 @@ public class ChooseFriendFragment extends Fragment {
         Button search = (Button) thisView.findViewById(R.id.add_friend_button);
         email_search = (EditText) thisView.findViewById(R.id.add_friend_searchbox);
         search.setOnClickListener(ButtonHandler);
+        // Create New listener for getting data from the firebase. The reference is stored in newfriendsListener
+        // So that it can be removed on pause
         newfriendsListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if(dataSnapshot.getValue() != null ){
-                        friendslist.add(dataSnapshot.getKey());
-                        friendslistemail.add((String)dataSnapshot.getValue());
-                        friendlistadapter.notifyDataSetChanged();
+                    //Add userId to the list of friends
+                    friendslist.add(dataSnapshot.getKey());
+                    //Add email to the list of the friends
+                    friendslistemail.add((String)dataSnapshot.getValue());
+                    //Notify the adapter that the data is changed
+                    friendlistadapter.notifyDataSetChanged();
                 }
 
             }
@@ -118,7 +159,7 @@ public class ChooseFriendFragment extends Fragment {
 
             }
         };
-
+        //Get The most recent list of the friends from the database
         getFriendsFromDB();
         return thisView;
     }
@@ -127,9 +168,13 @@ public class ChooseFriendFragment extends Fragment {
     @Override
     public void onPause(){
         super.onPause();
+        //Remove the eventListener
         mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("friends").removeEventListener(newfriendsListener);
     }
 
+    /**
+     * Onlick listener to keep track of the add frind button
+     */
     private View.OnClickListener ButtonHandler = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -144,10 +189,16 @@ public class ChooseFriendFragment extends Fragment {
         }
     };
 
+    /**
+     * Get friends fromt he DataBase
+     */
     private void getFriendsFromDB(){
         mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("friends").addChildEventListener(newfriendsListener);
     }
 
+    /**
+     * Add the user as a friend to the database using emai ID
+     */
     private void addUserAsFriend(){
         searchstr= email_search.getText().toString();
         mFirebaseRef.child("users").orderByChild("email").equalTo(searchstr)
@@ -155,25 +206,14 @@ public class ChooseFriendFragment extends Fragment {
                     @Override
                     public void onDataChange(DataSnapshot querySnapshot) {
                         if (querySnapshot.getChildrenCount() == 0) {
+                            //User Does not exist if the query was empty
                             Toast.makeText(getActivity(), "The User Does not exist", Toast.LENGTH_SHORT).show();
 
                         } else {
+                            /*Add the Query result (USERID associated with the email) into the database in the friends field.
+                            If the user does not exist in the list already.
+                            */
                             for (DataSnapshot child : querySnapshot.getChildren()) {
-                                if (friendslist.isEmpty()) {
-
-                                    mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("friends").child(child.getKey())
-                                            .setValue(searchstr,
-                                                    new Firebase.CompletionListener() {
-                                                        @Override
-                                                        public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                                                            if (firebaseError != null) {
-                                                                Log.e(TAG, firebaseError.getMessage().toString());
-                                                            } else {
-                                                                Toast.makeText(getActivity(), "The User was added to your friend list", Toast.LENGTH_SHORT).show();
-                                                            }
-                                                        }
-                                                    });
-                                } else {
                                     if (!checkIfFriendExists(child.getKey())){
                                     mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("friends").child(child.getKey())
                                             .setValue(searchstr,
@@ -191,7 +231,6 @@ public class ChooseFriendFragment extends Fragment {
                                     else{
                                         Toast.makeText(getActivity(), "The User is already your friend", Toast.LENGTH_SHORT).show();
                                     }
-                                }
                             }
                         }
                     }
@@ -202,6 +241,11 @@ public class ChooseFriendFragment extends Fragment {
                 });
     }
 
+    /**
+     * Check if the user exists in the friends list already
+     * @param ID Takes in the USERID of the user
+     * @return Returns true or false
+     */
     private boolean checkIfFriendExists(String ID) {
         if(friendslist.contains(ID))
             return true;

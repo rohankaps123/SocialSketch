@@ -13,10 +13,15 @@ import com.example.kiwitech.socialsketch.R;
 import java.util.List;
 
 /**
- * Created by kiwitech on 26/6/15.
+ * A Class representing an Array Adpater to display a list of friends to be selected and bound to the room.
+ *
+ * @author Rohan Kapoor
+ * @since 1.0
  */
 public class ChooseFriendsArrayAdapter extends ArrayAdapter<String> {
+   //Context for the list view
     private final Context context;
+    //List of objects to show in the List View
     private final List<String> objects;
 
     public ChooseFriendsArrayAdapter(Context context, int resource, List<String> objects) {
@@ -25,6 +30,7 @@ public class ChooseFriendsArrayAdapter extends ArrayAdapter<String> {
         this.objects = objects;
     }
 
+    // Get the view For each row using the data
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context
