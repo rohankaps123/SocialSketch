@@ -45,8 +45,8 @@
         android:layout_gravity="center"
         android:layout_marginTop="15sp"
         android:text="Choose From Your Friends"
-        android:textSize="25sp"
-        android:id="@+id/friends_list" />
+        android:textSize="15sp"
+        android:id="@+id/friends_list_title" />
 
     <ListView
         android:layout_width="match_parent"

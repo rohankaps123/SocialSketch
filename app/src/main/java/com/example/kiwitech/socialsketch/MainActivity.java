@@ -2,6 +2,8 @@ package com.example.kiwitech.socialsketch;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -11,6 +13,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.example.kiwitech.socialsketch.DataTypes.SSRoom;
 import com.example.kiwitech.socialsketch.canvas.CanvasFragment;
 import com.example.kiwitech.socialsketch.canvas.CanvasView;
 import com.example.kiwitech.socialsketch.tools_pane.ToolsPaneFragment;
@@ -27,7 +31,9 @@ import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
  * @since 1.0
  */
 public class MainActivity extends Activity implements ToolsPaneFragment.OnButtonSelectedListener,
-        ColorPickerDialogFragment.ColorPickerDialogListener,ChooseFriendFragment.ChooseFriendFragmentListener {
+        ColorPickerDialogFragment.ColorPickerDialogListener,
+        ChooseFriendFragment.ChooseFriendFragmentListener,
+        ChooseRoomFragment.ChooseRoomFragmentListener {
     // Handler for threads running on the main activity
     private Handler h;
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -37,6 +43,9 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     //Current state of the activity
     private static String state;
     private static String thisUserID = "";
+    private static String thisRoomID;
+    private static String thisRoomName;
+
 
     // on create displays the main activity xml
     @Override
@@ -50,6 +59,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         Button addFriend = (Button) findViewById(R.id.choose_friends_button);
         addFriend.setOnClickListener(ButtonHandler);
     }
+
 
     public static void setThisUserID(String ID){
         thisUserID = ID;
@@ -130,6 +140,17 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
                 create = new CreateNewUserFragment();
             }
             getFragmentManager().beginTransaction().replace(R.id.login_window,create , "Create New user").commit();
+        }
+        else if(state.equals("chooseRoom")){
+            if(login == null){
+                login = new LoginFragment();
+            }
+            getFragmentManager().beginTransaction().replace(R.id.main_window, login, "Login").commit();
+            ChooseRoomFragment roomchooser = (ChooseRoomFragment) getFragmentManager().findFragmentById(R.layout.fragment_choose_room);
+            if( roomchooser == null){
+                roomchooser = new ChooseRoomFragment();
+            }
+            getFragmentManager().beginTransaction().replace(R.id.login_window,roomchooser, "Choose Room").commit();
         }
         else
         getActionBar().show();
@@ -244,5 +265,12 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     @Override
     public void ChooseFriendFragmentInteraction(String id) {
 
+    }
+
+
+    @Override
+    public void ChooseRoomFragmentInteraction(String roomID, String roomName) {
+        this.thisRoomID = roomID;
+        this.thisRoomName = roomName;
     }
 }

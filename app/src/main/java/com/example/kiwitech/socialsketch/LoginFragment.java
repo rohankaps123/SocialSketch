@@ -4,6 +4,7 @@ package com.example.kiwitech.socialsketch;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -39,6 +40,7 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,6 +87,7 @@ public class LoginFragment extends Fragment implements
      * Result reference to the fragment callback
      */
     public static final int RESULT_OK = -1;
+
 
 
     public LoginFragment() {
@@ -287,13 +290,17 @@ public class LoginFragment extends Fragment implements
             setUserIDOnlineDB(authData.getProviderData().get("email").toString());
             Toast.makeText(getActivity(), "Successfully logged in", Toast.LENGTH_SHORT).show();
             getActivity().getActionBar().show();
-            MainActivity.setState("canvas");
             getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
+            ChooseRoomFragment roomchooser = new ChooseRoomFragment();
+            MainActivity.setState("chooseRoom");
+            getFragmentManager().beginTransaction().replace(R.id.main_window, roomchooser, "Choose Room").commit();
         }
         else{
             return;
         }
     }
+
+
 
 
     private void setUserIDOnlineDB(String email) {

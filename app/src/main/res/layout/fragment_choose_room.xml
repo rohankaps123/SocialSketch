@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="20sp"
+    android:id="@+id/choose_room_list"
+    android:background="#EEEEEE"
+    android:clickable="true">
+    <LinearLayout
+        android:id="@+id/friend_list_view_searchbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <EditText
+            android:layout_width="0sp"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:ems="10"
+            android:layout_marginTop="15sp"
+            android:layout_marginLeft="10sp"
+            android:layout_weight="4"
+            android:hint="Room Name"
+            android:singleLine="true"
+            android:id="@+id/choose_room_new_name"
+            android:layout_gravity="center_horizontal" />
+
+    <Button
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="0sp"
+        android:layout_marginLeft="5sp"
+        android:layout_weight="3"
+
+        android:layout_height="wrap_content"
+        android:text="@string/add_room_buttton"
+        android:id="@+id/create_room_button"
+        android:layout_gravity="center_horizontal"
+        android:imeOptions="actionDone"/>
+    </LinearLayout>
+
+
+    <Button
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="5sp"
+        android:layout_height="wrap_content"
+        android:text="@string/local_use_button"
+        android:id="@+id/use_local_button"
+        android:layout_gravity="center_horizontal"
+        android:imeOptions="actionDone"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="15sp"
+        android:text="Choose From Existing Rooms"
+        android:textSize="15sp"
+        android:id="@+id/title_choose_room" />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/choose_room_list_view"
+        android:layout_marginTop="10sp"
+        android:layout_marginLeft="10sp"
+        android:layout_marginRight="10sp"
+        android:layout_marginBottom="10sp"
+        android:layout_gravity="center_horizontal"
+        android:scrollbarAlwaysDrawVerticalTrack="true"/>
+</LinearLayout>
