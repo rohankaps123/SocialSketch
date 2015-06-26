@@ -14,6 +14,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.example.kiwitech.socialsketch.DataTypes.ChooseFriendsArrayAdapter;
+import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -38,8 +41,7 @@ public class ChooseFriendFragment extends Fragment {
     private ArrayList<String> friendslist;
     private EditText email_search;
     private String searchstr;
-    private String friends;
-    private ValueEventListener friendsListener;
+    private ChildEventListener newfriendsListener;
     ArrayAdapter<String> friendlistadapter;
     private Context thiscontext;
     private ArrayList<String> friendslistemail;
@@ -78,59 +80,54 @@ public class ChooseFriendFragment extends Fragment {
         friendslist = new ArrayList<String>();
         friendslistemail = new ArrayList<String>();
 
-        friendlistadapter = new ArrayAdapter<String> (thiscontext,
-                android.R.layout.simple_list_item_1, friendslistemail );
+        friendlistadapter = new ChooseFriendsArrayAdapter(thiscontext,
+                R.layout.friend_list_item, friendslistemail);
         userlist.setAdapter(friendlistadapter);
 
         Button search = (Button) thisView.findViewById(R.id.add_friend_button);
         email_search = (EditText) thisView.findViewById(R.id.add_friend_searchbox);
         search.setOnClickListener(ButtonHandler);
-        friendsListener = new ValueEventListener() {
+        newfriendsListener = new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if(dataSnapshot.getValue() != null ){
-                    friends = dataSnapshot.getValue().toString();
-                    update_friendslist();
+                        friendslist.add(dataSnapshot.getKey());
+                        friendslistemail.add((String)dataSnapshot.getValue());
+                        friendlistadapter.notifyDataSetChanged();
                 }
-                else{
-                }
+
             }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
             @Override
             public void onCancelled(FirebaseError firebaseError) {
 
             }
         };
+
         getFriendsFromDB();
         return thisView;
     }
-    private void update_friendslist(){
-        ArrayList<String> newList = new ArrayList<String>(Arrays.asList(friends.split(",")));
-        for(String ID : newList){
-            if(!friendslist.contains(ID)){
-                friendslist.add(ID);
-                mFirebaseRef.child("users").child(ID).child("email")
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                friendslistemail.add(dataSnapshot.getValue().toString());
-                            }
-
-                            @Override
-                            public void onCancelled(FirebaseError firebaseError) {
-
-                            }
-                        });
-            }
-        }
-        friendlistadapter.notifyDataSetChanged();
-    }
-
 
 
     @Override
     public void onPause(){
         super.onPause();
-        mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("friends").removeEventListener(friendsListener);
+        mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("friends").removeEventListener(newfriendsListener);
     }
 
     private View.OnClickListener ButtonHandler = new View.OnClickListener() {
@@ -148,7 +145,7 @@ public class ChooseFriendFragment extends Fragment {
     };
 
     private void getFriendsFromDB(){
-        mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("friends").addValueEventListener(friendsListener);
+        mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("friends").addChildEventListener(newfriendsListener);
     }
 
     private void addUserAsFriend(){
@@ -162,9 +159,10 @@ public class ChooseFriendFragment extends Fragment {
 
                         } else {
                             for (DataSnapshot child : querySnapshot.getChildren()) {
-                                if (friends == null || friends == "") {
-                                    mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("friends")
-                                            .setValue(child.getKey(),
+                                if (friendslist.isEmpty()) {
+
+                                    mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("friends").child(child.getKey())
+                                            .setValue(searchstr,
                                                     new Firebase.CompletionListener() {
                                                         @Override
                                                         public void onComplete(FirebaseError firebaseError, Firebase firebase) {
@@ -177,9 +175,8 @@ public class ChooseFriendFragment extends Fragment {
                                                     });
                                 } else {
                                     if (!checkIfFriendExists(child.getKey())){
-                                        friends = friends + "," + child.getKey();
-                                    mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("friends")
-                                            .setValue(friends,
+                                    mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("friends").child(child.getKey())
+                                            .setValue(searchstr,
                                                     new Firebase.CompletionListener() {
                                                         @Override
                                                         public void onComplete(FirebaseError firebaseError, Firebase firebase) {
