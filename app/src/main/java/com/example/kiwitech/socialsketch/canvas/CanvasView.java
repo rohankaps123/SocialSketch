@@ -436,14 +436,15 @@ public class CanvasView extends View{
             npath.setIsPoint(false);
             npath.getPath().moveTo(pointlist.get(0).getX(),pointlist.get(0).getY());
             pointlist.remove(0);
-            Pair<Float,Float> lastPoint = pointlist.get(pointlist.size());
-            pointlist.remove(pointlist.size());
+            Pair<Float,Float> lastPoint = pointlist.get(pointlist.size()-1);
+            pointlist.remove(pointlist.size()-1);
             for(Pair<Float,Float> point : pointlist){
                 when_moving(point.getX(),point.getY(),npath);
             }
             npath.getPath().lineTo(lastPoint.getX(), lastPoint.getY());
             canvas.drawPath(npath.getPath(), npath.getPaint());
         }
+        path_canvas = npath;
         invalidate();
     }
 
