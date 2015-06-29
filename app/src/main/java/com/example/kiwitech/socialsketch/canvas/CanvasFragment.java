@@ -28,6 +28,7 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,7 +52,7 @@ public class CanvasFragment extends Fragment {
 
     private static Firebase mFirebaseRef;
 
-    private ChildEventListener newSegment;
+    private ValueEventListener newSegment;
 
 
     /**
@@ -69,24 +70,21 @@ public class CanvasFragment extends Fragment {
 
 
     public void addNewSegmentListener(){
-        newSegment = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-            }
+        newSegment = new ValueEventListener(){
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot != null){
+                CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
+                CanvasView cview = (CanvasView) canvasF.getView();
+                    try {
+                        cview.updateCanvas((String) dataSnapshot.getValue());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             @Override
@@ -95,7 +93,7 @@ public class CanvasFragment extends Fragment {
             }
         };
         mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
-        mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID()).addChildEventListener(newSegment);
+        mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID()).addValueEventListener(newSegment);
     }
 
     public void removeNewSegmentListener(){

@@ -91,7 +91,7 @@ public class SegmentData implements Serializable {
         points.clear();
     }
 
-    public ArrayList getArrayListAsString(){
+    public ArrayList getArrayList(){
        return points;
     }
 }

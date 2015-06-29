@@ -20,6 +20,7 @@ import com.firebase.client.FirebaseError;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
 
@@ -173,11 +174,11 @@ public class CanvasView extends View{
      * @param touchX X Coordinate for Touch
      * @param touchY Y coordinate for Touch
      */
-    protected void when_moving(float touchX, float touchY) {
+    protected void when_moving(float touchX, float touchY, PathObject path) {
         float Xdiff = Math.abs(touchX - PrevX);
         float Ydiff = Math.abs(touchY - PrevY);
         if (Xdiff >= TOUCH_TOLERANCE || Ydiff >= TOUCH_TOLERANCE) {
-            path_canvas.getPath().quadTo(PrevX, PrevY, (touchX + PrevX) / 2, (touchY + PrevY) / 2);
+            path.getPath().quadTo(PrevX, PrevY, (touchX + PrevX) / 2, (touchY + PrevY) / 2);
             PrevX = touchX;
             PrevY = touchY;
             //Sets that the interaction is not a point
@@ -209,7 +210,7 @@ public class CanvasView extends View{
                 break;
             case MotionEvent.ACTION_MOVE:
                 //If the finger moves the interaction is a path not a point. Add the the path using when_moving.
-                when_moving(touchX, touchY);
+                when_moving(touchX, touchY,path_canvas);
                 //add point to the current segment
                 segment.addPoint(touchX, touchY);
                 break;
@@ -241,8 +242,7 @@ public class CanvasView extends View{
                         byte[] by_new = s.serialize(segment);
                         str = Base64.encodeToString(by_new, 0);
                         Firebase mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
-                        mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID())
-                                .child(MainActivity.getThisUserID()).setValue(str);
+                        mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID()).setValue(str);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -416,6 +416,35 @@ public class CanvasView extends View{
     public void setBrush_size(int size){
         brush_size = size;
         path_canvas.getPaint().setStrokeWidth(brush_size);
+    }
+
+    public void updateCanvas(String segment) throws IOException, ClassNotFoundException {
+        Serializer s = new Serializer();
+        byte[] by_new =  Base64.decode(segment, 0);
+        SegmentData nsegment = (SegmentData) s.deserialize(by_new);
+        PathObject npath = new PathObject(path_canvas.getPaint());
+        npath.getPaint().setColor(nsegment.getColor());
+        npath.getPaint().setStrokeWidth(nsegment.getBrush_size());
+        ArrayList<Pair<Float,Float>> pointlist = nsegment.getArrayList();
+
+        if(pointlist.size() == 1){
+            npath.setIsPoint(true);
+            npath.getPoint().set(Math.round(pointlist.get(0).getX()), Math.round(pointlist.get(0).getY()));
+            canvas.drawPoint(npath.getPoint().x, npath.getPoint().y, npath.getPaint());
+        }
+        else{
+            npath.setIsPoint(false);
+            npath.getPath().moveTo(pointlist.get(0).getX(),pointlist.get(0).getY());
+            pointlist.remove(0);
+            Pair<Float,Float> lastPoint = pointlist.get(pointlist.size());
+            pointlist.remove(pointlist.size());
+            for(Pair<Float,Float> point : pointlist){
+                when_moving(point.getX(),point.getY(),npath);
+            }
+            npath.getPath().lineTo(lastPoint.getX(), lastPoint.getY());
+            canvas.drawPath(npath.getPath(), npath.getPaint());
+        }
+        invalidate();
     }
 
 }
