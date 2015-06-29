@@ -90,4 +90,8 @@ public class SegmentData implements Serializable {
     public void reset(){
         points.clear();
     }
+
+    public ArrayList getArrayListAsString(){
+       return points;
+    }
 }

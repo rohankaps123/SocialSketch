@@ -9,10 +9,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kiwitech.socialsketch.DataTypes.ChooseFriendsArrayAdapter;
@@ -116,8 +119,24 @@ public class ChooseFriendFragment extends Fragment {
         friendslistemail = new ArrayList<String>();
 
         friendlistadapter = new ChooseFriendsArrayAdapter(thiscontext,
-                R.layout.friend_list_item, friendslistemail);
+                R.layout.friend_list_item, friendslistemail,friendslist);
         userlist.setAdapter(friendlistadapter);
+
+        userlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long arg3) {
+                view.setSelected(true);
+                CheckBox added_check = (CheckBox) view.findViewById(R.id.friend_list_item_checkbox);
+                if(added_check.isChecked()){
+                    added_check.setChecked(false);
+                    mListener.ChooseFriendFragmentInteraction("remove", friendslist.get(position), friendslistemail.get(position));
+                }
+                else{
+                    added_check.setChecked(true);
+                    mListener.ChooseFriendFragmentInteraction("add",friendslist.get(position), friendslistemail.get(position));
+                }
+            }
+        });
 
         Button search = (Button) thisView.findViewById(R.id.add_friend_button);
         email_search = (EditText) thisView.findViewById(R.id.add_friend_searchbox);
@@ -265,6 +284,7 @@ public class ChooseFriendFragment extends Fragment {
 
     @Override
     public void onDetach() {
+        getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
         super.onDetach();
         mListener = null;
     }
@@ -282,7 +302,7 @@ public class ChooseFriendFragment extends Fragment {
      */
     public interface ChooseFriendFragmentListener {
         // TODO: Update argument type and name
-        public void ChooseFriendFragmentInteraction(String id);
+        public void ChooseFriendFragmentInteraction(String action,String userID, String userEmail);
     }
 
 }

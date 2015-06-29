@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.example.kiwitech.socialsketch.DataTypes.ChooseFriendsArrayAdapter;
 import com.example.kiwitech.socialsketch.DataTypes.SSRoom;
+import com.example.kiwitech.socialsketch.canvas.CanvasFragment;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -111,10 +112,11 @@ public class ChooseRoomFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long arg3) {
                 view.setSelected(true);
-                mListener.ChooseRoomFragmentInteraction(roomIDlist.get(position),roomnamelist.get(position));
-                MainActivity.setState("canvas");
-                Toast.makeText(getActivity(), "Successfully selected" + roomnamelist.get(position) , Toast.LENGTH_SHORT).show();
+                mListener.ChooseRoomFragmentInteraction(roomIDlist.get(position), roomnamelist.get(position));
+                setMemberThisRoom();
+                Toast.makeText(getActivity(), "Successfully selected " + roomnamelist.get(position), Toast.LENGTH_SHORT).show();
                 getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
+                MainActivity.setState("canvas");
             }
         });
 
@@ -162,6 +164,10 @@ public class ChooseRoomFragment extends Fragment {
         return thisView;
     }
 
+    private void setMemberThisRoom() {
+        mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(true);
+    }
+
 
     @Override
     public void onPause(){
@@ -185,7 +191,8 @@ public class ChooseRoomFragment extends Fragment {
                     break;
                 case R.id.use_local_button:
                     //close the keyboard on click
-                    imm.hideSoftInputFromWindow(v.getWindowToken(),0);
+                    MainActivity.setIsLocal(true);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     MainActivity.setState("canvas");
                     getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
                     break;
@@ -208,7 +215,8 @@ public class ChooseRoomFragment extends Fragment {
         Firebase roomsRef = mFirebaseRef.child("rooms");
         String newRoomKey = roomsRef.push().getKey();
         roomsRef.child(newRoomKey).setValue(newRoom);
-        mFirebaseRef.child("members").child(newRoomKey).child(MainActivity.getThisUserID()).setValue(true);
+        mFirebaseRef.child("members").child(newRoomKey).child(MainActivity.getThisUserID()).setValue(false);
+        mFirebaseRef.child("canvas").child(newRoomKey).child(MainActivity.getThisUserID()).setValue("created");
         Toast.makeText(getActivity(), "Successfully created a new Room", Toast.LENGTH_SHORT).show();
     }
 

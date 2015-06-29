@@ -7,6 +7,11 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_leave_room"
+        android:title="Leave Room"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_logout"
         android:title="Logout"
         android:orderInCategory="100"

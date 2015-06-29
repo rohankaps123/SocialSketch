@@ -21,6 +21,8 @@
         android:id="@+id/friend_list_item_checkbox"
         android:layout_weight="1"
         android:checked="false"
+        android:focusable="false"
+        android:clickable="false"
         android:layout_gravity="center"/>
 
 </LinearLayout>

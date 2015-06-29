@@ -11,9 +11,16 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import com.example.kiwitech.socialsketch.DataTypes.PathObject;
+import com.example.kiwitech.socialsketch.MainActivity;
+import com.example.kiwitech.socialsketch.R;
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Stack;
 
 
@@ -26,6 +33,7 @@ import java.util.Stack;
  * @since 1.0
  */
 public class CanvasView extends View{
+    private static final String TAG = CanvasView.class.getSimpleName();
 
     /**
      * Saves data for each segment and can be used to send to other users.
@@ -94,6 +102,7 @@ public class CanvasView extends View{
      */
     private int eraser_size;
 
+
     /**
      * Constructor to setup the Canvas.
      *
@@ -122,7 +131,10 @@ public class CanvasView extends View{
         path_canvas.getPaint().setStrokeJoin(Paint.Join.ROUND);
         path_canvas.getPaint().setStrokeCap(Paint.Cap.ROUND);
         path_canvas.getPaint().setAlpha(255);
+
     }
+
+
 
     /**
      * Sets up the size of the Bitmap used in the view when the size is changed or set and initializes a new Bitmap based on that.
@@ -180,6 +192,7 @@ public class CanvasView extends View{
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
         redoStack.removeAllElements();
         float touchX = event.getX();
         float touchY = event.getY();
@@ -198,7 +211,7 @@ public class CanvasView extends View{
                 //If the finger moves the interaction is a path not a point. Add the the path using when_moving.
                 when_moving(touchX, touchY);
                 //add point to the current segment
-                segment.addPoint(touchX,touchY);
+                segment.addPoint(touchX, touchY);
                 break;
             case MotionEvent.ACTION_UP:
                 if (!itMoved) {
@@ -219,21 +232,21 @@ public class CanvasView extends View{
                     //add point to the current segment
                     segment.addPoint(touchX, touchY);
                 }
-                //serialize the segment and send it to the database
-                Serializer s = new Serializer();
-                String str;
-                try {
-                    byte[] by_new = s.serialize(segment);
-                    str = Base64.encodeToString(by_new, 0);
-                    SegmentData segment = (SegmentData) s.deserialize(Base64.decode(str,0));
+                if(!MainActivity.getIsLocal()) {
+                    Serializer s = new Serializer();
+                    String str;
+                    segment.setBrush_size((int) path_canvas.getPaint().getStrokeWidth());
+                    segment.setColor(path_canvas.getPaint().getColor());
+                    try {
+                        byte[] by_new = s.serialize(segment);
+                        str = Base64.encodeToString(by_new, 0);
+                        Firebase mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
+                        mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID())
+                                .child(MainActivity.getThisUserID()).setValue(str);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-                catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-                segment.setBrush_size((int) path_canvas.getPaint().getStrokeWidth());
-                segment.setColor(path_canvas.getPaint().getColor());
                 // Renew path_canvas and segment for next interaction
                 Paint paint = new Paint(path_canvas.getPaint());
                 path_canvas = new PathObject(paint);
@@ -246,6 +259,7 @@ public class CanvasView extends View{
         invalidate();
         return true;
     }
+
 
 
     /**
@@ -304,6 +318,7 @@ public class CanvasView extends View{
      * Undoes the last drawn item
      */
     public void pathUndo() {
+        if(MainActivity.getIsLocal()){
         int w = getMeasuredWidth();
         int h = getMeasuredHeight();
         canvas_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -324,13 +339,15 @@ public class CanvasView extends View{
             }
         }
         invalidate();
+        }
     }
 
     /**
      * redraws the items undoed
      */
     public void pathRedo() {
-        if (!redoStack.isEmpty()) {
+        if(MainActivity.getIsLocal()){
+            if (!redoStack.isEmpty()) {
             PathObject redoPath = redoStack.pop();
             //Redraws the path in the redoStack and adds it to the paths stack as it is back on the canvas
             if (redoPath.CheckifPoint()) {
@@ -341,6 +358,7 @@ public class CanvasView extends View{
                 paths.add(redoPath);
             }
             invalidate();
+            }
         }
     }
 

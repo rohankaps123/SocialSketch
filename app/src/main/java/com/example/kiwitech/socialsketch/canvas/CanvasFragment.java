@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,10 +20,18 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kiwitech.socialsketch.DataTypes.SegmentData;
+import com.example.kiwitech.socialsketch.DataTypes.Serializer;
+import com.example.kiwitech.socialsketch.MainActivity;
 import com.example.kiwitech.socialsketch.R;
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Random;
 
 import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
@@ -39,12 +48,61 @@ import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
 
 public class CanvasFragment extends Fragment {
 
+
+    private static Firebase mFirebaseRef;
+
+    private ChildEventListener newSegment;
+
+
+    /**
+     * Saves data for each segment and can be used to send to other users.
+     */
+    private SegmentData segment;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.canvas, container, false);
+        View thisView = inflater.inflate(R.layout.canvas, container, false);
+        return thisView;
     }
+
+
+    public void addNewSegmentListener(){
+        newSegment = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        };
+        mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
+        mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID()).addChildEventListener(newSegment);
+    }
+
+    public void removeNewSegmentListener(){
+       mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID()).removeEventListener(newSegment);
+    }
+
+
     /**
      * Takes a Bimap and compresses it into a PNG and stores it to internal Storage in a new thread
      * @param finalBitmap
@@ -85,6 +143,22 @@ public class CanvasFragment extends Fragment {
                 });
             }
         }).start();
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        if(MainActivity.getState().equals("canvas") && mFirebaseRef!=null){
+        removeNewSegmentListener();
+        }
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if(MainActivity.getState().equals("canvas")&& mFirebaseRef!=null){
+        removeNewSegmentListener();
+        }
     }
 
     /**
