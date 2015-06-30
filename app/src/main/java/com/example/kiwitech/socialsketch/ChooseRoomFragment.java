@@ -112,11 +112,7 @@ public class ChooseRoomFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long arg3) {
                 view.setSelected(true);
-                mListener.ChooseRoomFragmentInteraction(roomIDlist.get(position), roomnamelist.get(position),false);
-                setMemberThisRoom();
-                Toast.makeText(getActivity(), "Successfully selected " + roomnamelist.get(position), Toast.LENGTH_SHORT).show();
-                getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
-                MainActivity.setState("canvas");
+                mListener.ChooseRoomFragmentInteraction(roomIDlist.get(position), roomnamelist.get(position), false);
             }
         });
 
@@ -162,10 +158,6 @@ public class ChooseRoomFragment extends Fragment {
         //Get The most recent list of the friends from the database
         getRoomsFromDB();
         return thisView;
-    }
-
-    private void setMemberThisRoom() {
-        mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(true);
     }
 
 

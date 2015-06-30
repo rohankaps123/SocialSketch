@@ -420,7 +420,8 @@ public class CanvasView extends View{
         Serializer s = new Serializer();
         byte[] by_new =  Base64.decode(segment, 0);
         SegmentData nsegment = (SegmentData) s.deserialize(by_new);
-        PathObject npath = new PathObject(path_canvas.getPaint());
+            Paint paint = new Paint(path_canvas.getPaint());
+            PathObject npath = new PathObject(paint);
         npath.getPaint().setColor(nsegment.getColor());
         npath.getPaint().setStrokeWidth(nsegment.getBrush_size());
         ArrayList<Pair<Float,Float>> pointlist = nsegment.getArrayList();
@@ -450,10 +451,8 @@ public class CanvasView extends View{
             }
             npath.getPath().lineTo(lastPoint.getX(), lastPoint.getY());
             canvas.drawPath(npath.getPath(), npath.getPaint());
+            paths.add(npath);
         }
         invalidate();}
     }
-
-
-
 }

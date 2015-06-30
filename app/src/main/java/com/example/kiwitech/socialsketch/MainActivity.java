@@ -3,6 +3,7 @@ package com.example.kiwitech.socialsketch;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -46,13 +47,15 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     private static final String TAG = MainActivity.class.getSimpleName();
     //keeps track of of the login fragment
     private LoginFragment login = new LoginFragment();
-    private Firebase mFirebaseRef;
+    private static Firebase mFirebaseRef;
     private static ArrayList<String> roomMembers = new ArrayList<String>();
     //Current state of the activity
     private static String state;
     private static String thisUserID = "";
     private static String thisRoomID;
     private static String thisRoomName;
+
+    private Context thisContext = this;
 
     private static Boolean isLocal = true;
 
@@ -207,7 +210,6 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
 
     @Override
     public void onDestroy(){
-        setLocalCanvas();
         super.onDestroy();
         thisRoomName = "";
         thisRoomID = "";
@@ -234,7 +236,6 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             login.logout();
             CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
             CanvasView cview = (CanvasView) canvasF.getView();
-            canvasF.removeNewSegmentListener();
             setLocalCanvas();
             cview.clearCanvas();
             Toast.makeText(this, "Successfully logged out", Toast.LENGTH_SHORT).show();
@@ -355,11 +356,11 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue().equals(true)) {
                     mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(userID).setValue(true);
-                }
-                else{
+                } else {
                     mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(userID).setValue(false);
                 }
             }
+
             @Override
             public void onCancelled(FirebaseError firebaseError) {
 
@@ -382,10 +383,10 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         else{
             MainActivity.thisRoomID = roomID;
             MainActivity.thisRoomName = roomName;
-            getRoomMembersFromDB();
             setRemoteCanvas();
             CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
             canvasF.addNewSegmentListener();
+            getRoomMembersFromDB(roomName);
         }
     }
 
@@ -413,14 +414,27 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         redo.setVisibility(View.GONE);
     }
 
+    private void removeChooseRoomFragment(){
+        ChooseRoomFragment chooseRoom = (ChooseRoomFragment) getFragmentManager().findFragmentByTag("Choose Room");
+        getFragmentManager().beginTransaction().remove(chooseRoom).commit();
+    }
 
-    private void getRoomMembersFromDB() {
+    private void getRoomMembersFromDB(final String roomName) {
         mFirebaseRef.child("members").child(thisRoomID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot != null){
                     for (DataSnapshot child : dataSnapshot.getChildren()){
                         addToRoomMembers(child.getKey());
+                    }
+                    if (MainActivity.getRoomMembers().contains(MainActivity.getThisUserID())) {
+                        Toast.makeText(thisContext, "Successfully selected " + roomName, Toast.LENGTH_SHORT).show();
+                        MainActivity.setState("canvas");
+                        mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(true);
+                        removeChooseRoomFragment();
+                    }
+                    else{
+                        Toast.makeText(thisContext, " Not a member of " + roomName, Toast.LENGTH_SHORT).show();
                     }
                 }
             }
