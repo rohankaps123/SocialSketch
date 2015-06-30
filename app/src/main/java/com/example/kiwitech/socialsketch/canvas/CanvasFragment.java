@@ -74,7 +74,7 @@ public class CanvasFragment extends Fragment {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot != null){
+                if(dataSnapshot.getValue() != null && !dataSnapshot.getKey().equals(MainActivity.getThisUserID())){
                 CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
                 CanvasView cview = (CanvasView) canvasF.getView();
                     try {

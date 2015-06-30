@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.util.AttributeSet;
 
 import android.util.Base64;
@@ -174,11 +175,11 @@ public class CanvasView extends View{
      * @param touchX X Coordinate for Touch
      * @param touchY Y coordinate for Touch
      */
-    protected void when_moving(float touchX, float touchY, PathObject path) {
+    protected void when_moving(float touchX, float touchY) {
         float Xdiff = Math.abs(touchX - PrevX);
         float Ydiff = Math.abs(touchY - PrevY);
         if (Xdiff >= TOUCH_TOLERANCE || Ydiff >= TOUCH_TOLERANCE) {
-            path.getPath().quadTo(PrevX, PrevY, (touchX + PrevX) / 2, (touchY + PrevY) / 2);
+            path_canvas.getPath().quadTo(PrevX, PrevY, (touchX + PrevX) / 2, (touchY + PrevY) / 2);
             PrevX = touchX;
             PrevY = touchY;
             //Sets that the interaction is not a point
@@ -210,7 +211,7 @@ public class CanvasView extends View{
                 break;
             case MotionEvent.ACTION_MOVE:
                 //If the finger moves the interaction is a path not a point. Add the the path using when_moving.
-                when_moving(touchX, touchY,path_canvas);
+                when_moving(touchX, touchY);
                 //add point to the current segment
                 segment.addPoint(touchX, touchY);
                 break;
@@ -318,7 +319,6 @@ public class CanvasView extends View{
      * Undoes the last drawn item
      */
     public void pathUndo() {
-        if(MainActivity.getIsLocal()){
         int w = getMeasuredWidth();
         int h = getMeasuredHeight();
         canvas_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -339,14 +339,12 @@ public class CanvasView extends View{
             }
         }
         invalidate();
-        }
     }
 
     /**
      * redraws the items undoed
      */
     public void pathRedo() {
-        if(MainActivity.getIsLocal()){
             if (!redoStack.isEmpty()) {
             PathObject redoPath = redoStack.pop();
             //Redraws the path in the redoStack and adds it to the paths stack as it is back on the canvas
@@ -359,7 +357,6 @@ public class CanvasView extends View{
             }
             invalidate();
             }
-        }
     }
 
 
@@ -419,6 +416,7 @@ public class CanvasView extends View{
     }
 
     public void updateCanvas(String segment) throws IOException, ClassNotFoundException {
+        if(!segment.equals("created")){
         Serializer s = new Serializer();
         byte[] by_new =  Base64.decode(segment, 0);
         SegmentData nsegment = (SegmentData) s.deserialize(by_new);
@@ -431,21 +429,31 @@ public class CanvasView extends View{
             npath.setIsPoint(true);
             npath.getPoint().set(Math.round(pointlist.get(0).getX()), Math.round(pointlist.get(0).getY()));
             canvas.drawPoint(npath.getPoint().x, npath.getPoint().y, npath.getPaint());
+            paths.add(npath);
         }
         else{
             npath.setIsPoint(false);
             npath.getPath().moveTo(pointlist.get(0).getX(),pointlist.get(0).getY());
+            float previousX = pointlist.get(0).getX();
+            float previousY = pointlist.get(0).getY();
             pointlist.remove(0);
             Pair<Float,Float> lastPoint = pointlist.get(pointlist.size()-1);
-            pointlist.remove(pointlist.size()-1);
+            pointlist.remove(pointlist.size() - 1);
             for(Pair<Float,Float> point : pointlist){
-                when_moving(point.getX(),point.getY(),npath);
+                float Xdiff = Math.abs(point.getX() - previousX);
+                float Ydiff = Math.abs(point.getY() - previousY);
+                if (Xdiff >= TOUCH_TOLERANCE || Ydiff >= TOUCH_TOLERANCE) {
+                    npath.getPath().quadTo(previousX, previousY, (point.getX() + previousX) / 2, (point.getY() + previousY) / 2);
+                    previousX = point.getX();
+                    previousY = point.getY();
+                }
             }
             npath.getPath().lineTo(lastPoint.getX(), lastPoint.getY());
             canvas.drawPath(npath.getPath(), npath.getPaint());
         }
-        path_canvas = npath;
-        invalidate();
+        invalidate();}
     }
+
+
 
 }

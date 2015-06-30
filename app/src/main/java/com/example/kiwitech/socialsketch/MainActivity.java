@@ -193,13 +193,21 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             getFragmentManager().beginTransaction().replace(R.id.login_window,roomchooser, "Choose Room").commit();
         }
         else
-        getActionBar().show();
-        getActionBar().setDisplayHomeAsUpEnabled(false);
-
+        if(isLocal){
+            setLocalCanvas();
+            getActionBar().show();
+            getActionBar().setDisplayHomeAsUpEnabled(false);
+        }
+        else {
+            setRemoteCanvas();
+            getActionBar().show();
+            getActionBar().setDisplayHomeAsUpEnabled(false);
+        }
     }
 
     @Override
     public void onDestroy(){
+        setLocalCanvas();
         super.onDestroy();
         thisRoomName = "";
         thisRoomID = "";
@@ -226,6 +234,8 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             login.logout();
             CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
             CanvasView cview = (CanvasView) canvasF.getView();
+            canvasF.removeNewSegmentListener();
+            setLocalCanvas();
             cview.clearCanvas();
             Toast.makeText(this, "Successfully logged out", Toast.LENGTH_SHORT).show();
             if(state.equals("canvas")) {
@@ -240,6 +250,11 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         if (id == R.id.action_leave_room) {
             //logout user when ever logout is selected and bring up the login fragment
             setState("chooseRoom");
+            CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
+            CanvasView cview = (CanvasView) canvasF.getView();
+            cview.clearCanvas();
+            mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID()).setValue("created");
+            canvasF.removeNewSegmentListener();
             ChooseRoomFragment roomchooser = (ChooseRoomFragment) getFragmentManager().findFragmentById(R.layout.fragment_choose_room);
             if( roomchooser == null){
                 roomchooser = new ChooseRoomFragment();
@@ -357,14 +372,47 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
 
 
     @Override
-    public void ChooseRoomFragmentInteraction(String roomID, String roomName) {
-        setIsLocal(false);
-        MainActivity.thisRoomID = roomID;
-        MainActivity.thisRoomName = roomName;
-        getRoomMembersFromDB();
-        CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
-        canvasF.addNewSegmentListener();
+    public void ChooseRoomFragmentInteraction(String roomID, String roomName,Boolean local) {
+        setIsLocal(local);
+        if (local){
+            setLocalCanvas();
+            MainActivity.thisRoomID = roomID;
+            MainActivity.thisRoomName = roomName;
+        }
+        else{
+            MainActivity.thisRoomID = roomID;
+            MainActivity.thisRoomName = roomName;
+            getRoomMembersFromDB();
+            setRemoteCanvas();
+            CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
+            canvasF.addNewSegmentListener();
+        }
     }
+
+    public void setLocalCanvas(){
+        Button chooseFriends = (Button) this.findViewById(R.id.choose_friends_button);
+        chooseFriends.setVisibility(View.GONE);
+        ToolsPaneFragment ntools = (ToolsPaneFragment) getFragmentManager().findFragmentById(R.id.tools);
+        Button clear = (Button) ntools.getView().findViewById(R.id.clear_button);
+        clear.setVisibility(View.VISIBLE);
+        Button undo = (Button) ntools.getView().findViewById(R.id.undo_button);
+        undo.setVisibility(View.VISIBLE);
+        Button redo = (Button) ntools.getView().findViewById(R.id.redo_button);
+        redo.setVisibility(View.VISIBLE);
+    }
+
+    public void setRemoteCanvas() {
+        Button chooseFriends = (Button) this.findViewById(R.id.choose_friends_button);
+        chooseFriends.setVisibility(View.VISIBLE);
+        ToolsPaneFragment ntools = (ToolsPaneFragment) getFragmentManager().findFragmentById(R.id.tools);
+        Button clear = (Button) ntools.getView().findViewById(R.id.clear_button);
+        clear.setVisibility(View.GONE);
+        Button undo = (Button) ntools.getView().findViewById(R.id.undo_button);
+        undo.setVisibility(View.GONE);
+        Button redo = (Button) ntools.getView().findViewById(R.id.redo_button);
+        redo.setVisibility(View.GONE);
+    }
+
 
     private void getRoomMembersFromDB() {
         mFirebaseRef.child("members").child(thisRoomID).addListenerForSingleValueEvent(new ValueEventListener() {

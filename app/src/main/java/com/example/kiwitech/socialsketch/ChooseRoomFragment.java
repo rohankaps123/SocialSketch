@@ -112,7 +112,7 @@ public class ChooseRoomFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long arg3) {
                 view.setSelected(true);
-                mListener.ChooseRoomFragmentInteraction(roomIDlist.get(position), roomnamelist.get(position));
+                mListener.ChooseRoomFragmentInteraction(roomIDlist.get(position), roomnamelist.get(position),false);
                 setMemberThisRoom();
                 Toast.makeText(getActivity(), "Successfully selected " + roomnamelist.get(position), Toast.LENGTH_SHORT).show();
                 getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
@@ -191,8 +191,8 @@ public class ChooseRoomFragment extends Fragment {
                     break;
                 case R.id.use_local_button:
                     //close the keyboard on click
-                    MainActivity.setIsLocal(true);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    mListener.ChooseRoomFragmentInteraction("","",true);
                     MainActivity.setState("canvas");
                     getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
                     break;
@@ -251,7 +251,7 @@ public class ChooseRoomFragment extends Fragment {
      */
     public interface ChooseRoomFragmentListener {
         // TODO: Update argument type and name
-        public void ChooseRoomFragmentInteraction(String roomID, String roomName);
+        public void ChooseRoomFragmentInteraction(String roomID, String roomName, Boolean local);
     }
 
 }

@@ -4,13 +4,14 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="20sp"
     android:id="@+id/choose_room_list"
     android:background="#EEEEEE"
     android:clickable="true">
     <LinearLayout
         android:id="@+id/friend_list_view_searchbar"
         android:layout_width="match_parent"
+        android:layout_marginTop="20sp"
+
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <EditText
