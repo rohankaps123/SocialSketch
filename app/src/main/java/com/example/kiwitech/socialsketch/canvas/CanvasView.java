@@ -1,6 +1,7 @@
 package com.example.kiwitech.socialsketch.canvas;
 import com.example.kiwitech.socialsketch.DataTypes.*;
 import android.content.Context;
+import android.database.sqlite.SQLiteBindOrColumnIndexOutOfRangeException;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -18,6 +19,7 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -104,7 +106,7 @@ public class CanvasView extends View{
      */
     private int eraser_size;
 
-
+    private Boolean newCanvas = true;
     /**
      * Constructor to setup the Canvas.
      *
@@ -194,7 +196,7 @@ public class CanvasView extends View{
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
+        newCanvas = false;
         redoStack.removeAllElements();
         float touchX = event.getX();
         float touchY = event.getY();
@@ -235,15 +237,20 @@ public class CanvasView extends View{
                     segment.addPoint(touchX, touchY);
                 }
                 if(!MainActivity.getIsLocal()) {
+                    Firebase mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
                     Serializer s = new Serializer();
                     String str;
                     segment.setBrush_size((int) path_canvas.getPaint().getStrokeWidth());
                     segment.setColor(path_canvas.getPaint().getColor());
+                    segment.setSizeOrigin(new Pair((float)getHeight(),(float)getWidth()));
+                    segment.setIsErase(eraseMode);
                     try {
                         byte[] by_new = s.serialize(segment);
                         str = Base64.encodeToString(by_new, 0);
-                        Firebase mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
-                        mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID()).setValue(str);
+                        String keyPush = mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID())
+                                .push().getKey();
+                        mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID())
+                                .child(keyPush).child(MainActivity.getThisUserID()).setValue(str);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -305,8 +312,9 @@ public class CanvasView extends View{
      * Clears the canvas and resets the stacks
      */
     public void clearCanvas() {
-        int w = getMeasuredWidth();
-        int h = getMeasuredHeight();
+        newCanvas = true;
+        int w = getWidth();
+        int h = getHeight();
         paths.removeAllElements();
         redoStack.removeAllElements();
         canvas_bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -416,16 +424,29 @@ public class CanvasView extends View{
     }
 
     public void updateCanvas(String segment) throws IOException, ClassNotFoundException {
-        if(!segment.equals("created")){
+
         Serializer s = new Serializer();
         byte[] by_new =  Base64.decode(segment, 0);
         SegmentData nsegment = (SegmentData) s.deserialize(by_new);
-            Paint paint = new Paint(path_canvas.getPaint());
-            PathObject npath = new PathObject(paint);
+        Paint paint = new Paint(path_canvas.getPaint());
+        PathObject npath = new PathObject(paint);
         npath.getPaint().setColor(nsegment.getColor());
-        npath.getPaint().setStrokeWidth(nsegment.getBrush_size());
         ArrayList<Pair<Float,Float>> pointlist = nsegment.getArrayList();
+        float preHeight = nsegment.getSizeOrigin().getX();
+        float preWidth = nsegment.getSizeOrigin().getY();
+        float w = getWidth();
+        float h = getHeight();
+        float scaleHeight = h/preHeight;
+        float scaleWidth = w/preWidth;
+        for(Pair<Float,Float> point : pointlist){
+            point.setX(point.getX()*scaleHeight);
+            point.setY(point.getY()*scaleWidth);
+        }
 
+        Log.e(TAG,String.valueOf(scaleHeight));
+        Log.e(TAG,String.valueOf(scaleWidth));
+
+        npath.getPaint().setStrokeWidth(nsegment.getBrush_size());
         if(pointlist.size() == 1){
             npath.setIsPoint(true);
             npath.getPoint().set(Math.round(pointlist.get(0).getX()), Math.round(pointlist.get(0).getY()));
@@ -438,7 +459,7 @@ public class CanvasView extends View{
             float previousX = pointlist.get(0).getX();
             float previousY = pointlist.get(0).getY();
             pointlist.remove(0);
-            Pair<Float,Float> lastPoint = pointlist.get(pointlist.size()-1);
+            Pair<Float,Float> lastPoint = pointlist.get(pointlist.size() - 1);
             pointlist.remove(pointlist.size() - 1);
             for(Pair<Float,Float> point : pointlist){
                 float Xdiff = Math.abs(point.getX() - previousX);
@@ -453,6 +474,10 @@ public class CanvasView extends View{
             canvas.drawPath(npath.getPath(), npath.getPaint());
             paths.add(npath);
         }
-        invalidate();}
+        invalidate();
+    }
+
+    public Boolean isNewCanvas() {
+        return newCanvas;
     }
 }

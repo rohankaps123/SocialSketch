@@ -236,12 +236,9 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             login.logout();
             CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
             CanvasView cview = (CanvasView) canvasF.getView();
-            setLocalCanvas();
             cview.clearCanvas();
             Toast.makeText(this, "Successfully logged out", Toast.LENGTH_SHORT).show();
-            if(state.equals("canvas")) {
-                mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
-            }
+            mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
             thisRoomName = "";
             thisRoomID = "";
             roomMembers.clear();
@@ -254,7 +251,6 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
             CanvasView cview = (CanvasView) canvasF.getView();
             cview.clearCanvas();
-            mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID()).setValue("created");
             canvasF.removeNewSegmentListener();
             ChooseRoomFragment roomchooser = (ChooseRoomFragment) getFragmentManager().findFragmentById(R.layout.fragment_choose_room);
             if( roomchooser == null){

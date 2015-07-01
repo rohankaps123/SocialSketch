@@ -208,7 +208,6 @@ public class ChooseRoomFragment extends Fragment {
         String newRoomKey = roomsRef.push().getKey();
         roomsRef.child(newRoomKey).setValue(newRoom);
         mFirebaseRef.child("members").child(newRoomKey).child(MainActivity.getThisUserID()).setValue(false);
-        mFirebaseRef.child("canvas").child(newRoomKey).setValue("created");
         Toast.makeText(getActivity(), "Successfully created a new Room", Toast.LENGTH_SHORT).show();
     }
 

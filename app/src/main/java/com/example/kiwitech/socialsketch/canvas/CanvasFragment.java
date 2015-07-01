@@ -11,6 +11,7 @@ import android.app.Fragment;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +34,9 @@ import com.firebase.client.ValueEventListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Random;
+import java.util.Stack;
 
 import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
 
@@ -48,11 +51,12 @@ import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
  */
 
 public class CanvasFragment extends Fragment {
+    private static final String TAG = CanvasFragment.class.getSimpleName();
 
 
     private static Firebase mFirebaseRef;
 
-    private ValueEventListener newSegment;
+    private ChildEventListener newSegment;
 
 
     /**
@@ -70,21 +74,53 @@ public class CanvasFragment extends Fragment {
 
 
     public void addNewSegmentListener(){
-        newSegment = new ValueEventListener(){
+        newSegment = new ChildEventListener(){
 
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.getValue() != null && !dataSnapshot.getKey().equals(MainActivity.getThisUserID())){
-                CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
-                CanvasView cview = (CanvasView) canvasF.getView();
-                    try {
-                        cview.updateCanvas((String) dataSnapshot.getValue());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                if(dataSnapshot != null){
+                    String key = "";
+                    String str = "";
+                    for(DataSnapshot child : dataSnapshot.getChildren()){
+                        key = child.getKey();
+                        str = (String) child.getValue();
+                    }
+                    CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
+                    CanvasView cview = (CanvasView) canvasF.getView();
+                    if(cview.isNewCanvas()){
+                        try {
+                            cview.updateCanvas(str);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    else if(!key.equals(MainActivity.getThisUserID())){
+                     try {
+                         cview.updateCanvas(str);
+                     } catch (IOException e) {
+                         e.printStackTrace();
+                     } catch (ClassNotFoundException e) {
+                         e.printStackTrace();
+                        }
                     }
                 }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
             }
 
             @Override
@@ -93,7 +129,7 @@ public class CanvasFragment extends Fragment {
             }
         };
         mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
-        mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID()).addValueEventListener(newSegment);
+        mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID()).addChildEventListener(newSegment);
     }
 
     public void removeNewSegmentListener(){
@@ -148,6 +184,13 @@ public class CanvasFragment extends Fragment {
         super.onPause();
         if(MainActivity.getState().equals("canvas") && mFirebaseRef!=null){
         removeNewSegmentListener();
+        }
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+        if(MainActivity.getState().equals("canvas") && mFirebaseRef!=null){
+            addNewSegmentListener();
         }
     }
 

@@ -13,6 +13,8 @@ import java.util.ArrayList;
  * @since 1.0
  */
 public class SegmentData implements Serializable {
+    private Pair<Float,Float> SizeOrigin;
+
     /**
      * Arraylist of all Points
      */
@@ -25,6 +27,8 @@ public class SegmentData implements Serializable {
      * Stores the size of the Brush
      */
     int brush_size;
+
+    private boolean isErase;
 
     /**
      * Set the brush size used to draw the segment
@@ -55,6 +59,7 @@ public class SegmentData implements Serializable {
 
     public SegmentData(){
         points = new ArrayList<Pair<Float, Float>>();
+        isErase = false;
     }
 
     /**
@@ -93,5 +98,21 @@ public class SegmentData implements Serializable {
 
     public ArrayList getArrayList(){
        return points;
+    }
+
+    public boolean isErase() {
+        return isErase;
+    }
+
+    public void setIsErase(boolean isErase) {
+        this.isErase = isErase;
+    }
+
+    public Pair<Float, Float> getSizeOrigin() {
+        return SizeOrigin;
+    }
+
+    public void setSizeOrigin(Pair<Float, Float> sizeOrigin) {
+        SizeOrigin = sizeOrigin;
     }
 }
