@@ -23,16 +23,17 @@ import java.util.List;
 public class ChooseFriendsArrayAdapter extends ArrayAdapter<String> {
    //Context for the list view
     private final Context context;
-    //List of objects to show in the List View
-    private final List<String> objects;
-    private final List<String> ids;
+    //List of emails to show in the List View
+    private final List<String> friendsEmails;
+    //List of Ids of the friends.
+    private final List<String> friendsIds;
 
 
     public ChooseFriendsArrayAdapter(Context context, int resource, List<String> email, List<String> ID) {
         super(context, resource, email);
         this.context = context;
-        this.objects = email;
-        this.ids = ID;
+        this.friendsEmails = email;
+        this.friendsIds = ID;
     }
 
     // Get the view For each row using the data
@@ -43,10 +44,10 @@ public class ChooseFriendsArrayAdapter extends ArrayAdapter<String> {
         View rowView = inflater.inflate(R.layout.friend_list_item, parent, false);
 
         TextView textView = (TextView) rowView.findViewById(R.id.friend_list_item_email);
-        textView.setText(objects.get(position));
+        textView.setText(friendsEmails.get(position));
         CheckBox added_check = (CheckBox) rowView.findViewById(R.id.friend_list_item_checkbox);
-
-        if(MainActivity.getRoomMembers().contains(ids.get(position))){
+        // Check if the friend is already a member or not. If a member the checkbox should be checked
+        if(MainActivity.getRoomMembers().contains(friendsIds.get(position))){
             added_check.setChecked(true);
         }
         else{

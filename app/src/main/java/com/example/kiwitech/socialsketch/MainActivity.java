@@ -44,45 +44,117 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         ChooseRoomFragment.ChooseRoomFragmentListener {
     // Handler for threads running on the main activity
     private Handler h;
+    //Tag for writing errors
     private static final String TAG = MainActivity.class.getSimpleName();
     //keeps track of of the login fragment
     private LoginFragment login = new LoginFragment();
+    //firebase refernce
     private static Firebase mFirebaseRef;
+    /**
+     * Stores the list of all members in the room
+     */
     private static ArrayList<String> roomMembers = new ArrayList<String>();
-    //Current state of the activity
+    /**
+     *Current fragment of the activity
+     */
     private static String state;
+    /**
+     * Current User's ID
+     */
     private static String thisUserID = "";
+    /**
+     * Current Rooms's ID
+     */
     private static String thisRoomID;
+    /**
+     * Current Room's Name
+     */
     private static String thisRoomName;
-
+    /**
+     * context for the main activity
+     */
     private Context thisContext = this;
-
+    /**
+     * Boolean to tell whether the user wants to use app locally
+     */
     private static Boolean isLocal = true;
 
+    /**
+     * Get the current room ID
+     * @return String
+     */
     public static String getThisRoomID() {
         return thisRoomID;
     }
 
+    /**
+     * Get the current room's name
+     * @return String
+     */
     public static String getThisRoomName() {
         return thisRoomName;
     }
 
+    /**
+     * Get the current Room's members
+     * @return ArrayList of members
+     */
     public static ArrayList<String> getRoomMembers() {
         return roomMembers;
     }
 
+    /**
+     * Add a User to the current room
+     * @param userID The User's ID
+     */
     public static void addToRoomMembers(String userID) {
         MainActivity.roomMembers.add(userID);
     }
 
+    /**
+     * Whether the app is in local mode or not
+     * @return true if app is in local mode else false
+     */
     public static Boolean getIsLocal() {
         return isLocal;
     }
 
+    /**
+     * Sets whether the app to use local mode or not
+     * @param isLocal true if app is in local mode else false
+     */
     public static void setIsLocal(Boolean isLocal) {
         MainActivity.isLocal = isLocal;
     }
+    /**
+     * Sets the current User's ID
+     * @param ID UserID
+     */
+    public static void setThisUserID(String ID){
+        thisUserID = ID;
+    }
 
+    /**
+     * gets the current User's ID
+     * @return ID UserID
+     */
+    public static String getThisUserID(){
+        return thisUserID;
+    }
+
+    /**
+     * Set State of the Application
+     */
+    public static void setState(String cstate){
+        state = cstate;
+    }
+
+    /**
+     *Get State of the Application
+     */
+    public static String  getState(){
+        return state;
+    }
 
     // on create displays the main activity xml
     @Override
@@ -99,24 +171,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     }
 
 
-    public static void setThisUserID(String ID){
-        thisUserID = ID;
-    }
-
-    public static String getThisUserID(){
-        return thisUserID;
-    }
-
-    //Set State of the Application
-    public static void setState(String cstate){
-        state = cstate;
-    }
-
-    //Get State of the Application
-    public static String  getState(){
-        return state;
-    }
-
+    // What to do when the back button is pressed
     @Override
     public void onBackPressed() {
         if (getFragmentManager().getBackStackEntryCount() > 0) {
@@ -140,6 +195,9 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         }
     };
 
+    /**
+     * Setup the Add Friend fragment and switch to it
+     */
     private void setupaddFriendSelector() {
         ChooseFriendFragment nfadd = new ChooseFriendFragment();
         getFragmentManager().beginTransaction().replace(R.id.main_window, nfadd, "Choose friends").addToBackStack("Main activity").commit();
@@ -202,12 +260,15 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             getActionBar().setDisplayHomeAsUpEnabled(false);
         }
         else {
-            setRemoteCanvas();
+            setSharedCanvas();
             getActionBar().show();
             getActionBar().setDisplayHomeAsUpEnabled(false);
         }
     }
 
+    /**
+     * Things to Do when the activity is destroyed
+     */
     @Override
     public void onDestroy(){
         super.onDestroy();
@@ -215,10 +276,11 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         thisRoomID = "";
         roomMembers.clear();
     }
+
     /**
      * On Options menu item selected
      * @param item do something if this item is selected
-     * @return
+     * @return true or false
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -232,15 +294,17 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             return true;
         }
         if (id == R.id.action_logout) {
+            //Set the user as offline in the canvas when logging out
+            if (getState().equals("canvas") && mFirebaseRef!=null) {
+                mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
+            }
             //logout user when ever logout is selected and bring up the login fragment
             login.logout();
             CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
             CanvasView cview = (CanvasView) canvasF.getView();
             cview.clearCanvas();
             Toast.makeText(this, "Successfully logged out", Toast.LENGTH_SHORT).show();
-            if (getState().equals("canvas") && mFirebaseRef!=null) {
-                mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
-            }
+
             thisRoomName = "";
             thisRoomID = "";
             roomMembers.clear();
@@ -248,6 +312,10 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             return true;
         }
         if (id == R.id.action_leave_room) {
+            //Set the user as offline in the canvas when leaving the room
+            if(getState().equals("canvas")){
+                mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
+            }
             //logout user when ever logout is selected and bring up the login fragment
             setState("chooseRoom");
             CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
@@ -259,9 +327,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
                 roomchooser = new ChooseRoomFragment();
             }
             getFragmentManager().beginTransaction().replace(R.id.main_window, roomchooser, "Choose Room").commit();
-            if(getState().equals("canvas")){
-                mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
-            }
+
             thisRoomName = "";
             thisRoomID = "";
             roomMembers.clear();
@@ -345,38 +411,57 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         canvasF.onDialogDismissed(dialogId);
     }
 
+    /**
+     * Callback from choose friend Fragment.
+     * @param action Tells us whether to add or remove the member
+     * @param userID Tells us the ID of the user to perform the action on
+     * @param userEmail tells us the Email id of the user to perform the action on,
+     */
     @Override
     public void ChooseFriendFragmentInteraction(String action,final String userID, final String userEmail) {
         if(action.equals("remove")){
+            //remove the user as a member in the room
             mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(userID).setValue(null);
             roomMembers.remove(userID);
         }
         else{
+            //Add the user as a member in the room
             mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(userID).setValue(false);
             addToRoomMembers(userID);
         }
     }
 
 
-
+    /**
+     * Callback from the choose room fragment.
+     * @param roomID The ID of the room selected
+     * @param roomName The name of the room selected
+     * @param local Whether the user wants to use the application locally or not
+     */
     @Override
     public void ChooseRoomFragmentInteraction(String roomID, String roomName,Boolean local) {
         setIsLocal(local);
+        //If local set the room id and name as "" and setup the local canvas
         if (local){
             setLocalCanvas();
             MainActivity.thisRoomID = roomID;
             MainActivity.thisRoomName = roomName;
         }
+        //If local set the room id and name and setup the shared canvas
         else{
             MainActivity.thisRoomID = roomID;
             MainActivity.thisRoomName = roomName;
-            setRemoteCanvas();
+            setSharedCanvas();
             CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
+            //add the listeners for friend status and new segments from the database
             canvasF.addNewSegmentListener();
             getRoomMembersFromDB(roomName);
         }
     }
 
+    /**
+     * Sets up the canvas for a local user
+     */
     public void setLocalCanvas(){
         Button chooseFriends = (Button) this.findViewById(R.id.choose_friends_button);
         chooseFriends.setVisibility(View.GONE);
@@ -389,7 +474,10 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         redo.setVisibility(View.VISIBLE);
     }
 
-    public void setRemoteCanvas() {
+    /**
+     * Sets up the canvas for a remote User
+     */
+    public void setSharedCanvas() {
         Button chooseFriends = (Button) this.findViewById(R.id.choose_friends_button);
         chooseFriends.setVisibility(View.VISIBLE);
         ToolsPaneFragment ntools = (ToolsPaneFragment) getFragmentManager().findFragmentById(R.id.tools);
@@ -401,19 +489,29 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         redo.setVisibility(View.GONE);
     }
 
+    /**
+     * Removes the chooseRoomFragment from view after room selection
+     */
     private void removeChooseRoomFragment(){
         ChooseRoomFragment chooseRoom = (ChooseRoomFragment) getFragmentManager().findFragmentByTag("Choose Room");
         getFragmentManager().beginTransaction().remove(chooseRoom).commit();
     }
 
+    /**
+     * Get the members of the room from the database, store in a list locally and make a
+     * shared canvas if the current user is in the list of members
+     * @param roomName Name of the room for which to get the members
+     */
     private void getRoomMembersFromDB(final String roomName) {
         mFirebaseRef.child("members").child(thisRoomID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot != null){
+                    //Add the changed user to the list if room members
                     for (DataSnapshot child : dataSnapshot.getChildren()){
                         addToRoomMembers(child.getKey());
                     }
+                    //if the room members list contains the current user make a shared canvas else give message
                     if (MainActivity.getRoomMembers().contains(MainActivity.getThisUserID())) {
                         Toast.makeText(thisContext, "Successfully selected " + roomName, Toast.LENGTH_SHORT).show();
                         MainActivity.setState("canvas");

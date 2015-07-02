@@ -13,6 +13,9 @@ import java.util.ArrayList;
  * @since 1.0
  */
 public class SegmentData implements Serializable {
+    /**
+     * Size of the display from where the segment origins
+     */
     private Pair<Float,Float> SizeOrigin;
 
     /**
@@ -27,7 +30,9 @@ public class SegmentData implements Serializable {
      * Stores the size of the Brush
      */
     int brush_size;
-
+    /**
+     * Whether the segment is an eraser segment
+     */
     private boolean isErase;
 
     /**
@@ -53,6 +58,11 @@ public class SegmentData implements Serializable {
     public int getColor(){
         return color;
     }
+
+    /**
+     * get the size of the brush
+     * @return brush size
+     */
     public int getBrush_size(){
         return brush_size;
     }
@@ -96,22 +106,42 @@ public class SegmentData implements Serializable {
         points.clear();
     }
 
+    /**
+     * Gets the ArrayList of Points
+     * @return
+     */
     public ArrayList getArrayList(){
        return points;
     }
 
+    /**
+     * Gets whether the segment is an erase segment
+     * @return
+     */
     public boolean isErase() {
         return isErase;
     }
 
+    /**
+     * Sets whether the segment is an erase segment
+     * @param isErase
+     */
     public void setIsErase(boolean isErase) {
         this.isErase = isErase;
     }
 
+    /**
+     * Get the size of the Originating screen
+     * @return
+     */
     public Pair<Float, Float> getSizeOrigin() {
         return SizeOrigin;
     }
 
+    /**
+     * Set the size of the originating screen
+     * @param sizeOrigin
+     */
     public void setSizeOrigin(Pair<Float, Float> sizeOrigin) {
         SizeOrigin = sizeOrigin;
     }
