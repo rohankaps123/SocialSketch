@@ -183,7 +183,10 @@ public class CanvasFragment extends Fragment {
     public void onPause(){
         super.onPause();
         if(MainActivity.getState().equals("canvas") && mFirebaseRef!=null){
-        removeNewSegmentListener();
+            removeNewSegmentListener();
+            CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
+            CanvasView cview = (CanvasView) canvasF.getView();
+            cview.clearCanvas();
         }
     }
     @Override

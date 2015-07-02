@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.kiwitech.socialsketch.DataTypes.ChooseFriendsArrayAdapter;
+import com.example.kiwitech.socialsketch.DataTypes.ChooseRoomArrayAdapter;
 import com.example.kiwitech.socialsketch.DataTypes.SSRoom;
 import com.example.kiwitech.socialsketch.canvas.CanvasFragment;
 import com.firebase.client.ChildEventListener;
@@ -88,7 +89,6 @@ public class ChooseRoomFragment extends Fragment {
     public ChooseRoomFragment() {
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,17 +104,17 @@ public class ChooseRoomFragment extends Fragment {
         roomIDlist = new ArrayList<String>();
         roomnamelist = new ArrayList<String>();
 
-        roomListAdapter = new ArrayAdapter<String>(thiscontext,
-                android.R.layout.simple_list_item_1, roomnamelist);
+        roomListAdapter = new ChooseRoomArrayAdapter(thiscontext,
+                R.layout.room_list_item, roomnamelist,roomIDlist,this);
         roomlist.setAdapter(roomListAdapter);
 
-        roomlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        /*roomlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long arg3) {
                 view.setSelected(true);
-                mListener.ChooseRoomFragmentInteraction(roomIDlist.get(position), roomnamelist.get(position), false);
             }
-        });
+        });*/
+
 
         Button newRoomButton = (Button) thisView.findViewById(R.id.create_room_button);
         Button localUseButton = (Button) thisView.findViewById(R.id.use_local_button);
@@ -142,7 +142,12 @@ public class ChooseRoomFragment extends Fragment {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-
+                if(dataSnapshot.getValue() != null ){
+                    roomIDlist.remove((String) dataSnapshot.getKey());
+                    Map<String, Object> oldRoom = (Map<String, Object>) dataSnapshot.getValue();
+                    roomnamelist.remove((String) oldRoom.get("name"));
+                    roomListAdapter.notifyDataSetChanged();
+                }
             }
 
             @Override
@@ -160,7 +165,10 @@ public class ChooseRoomFragment extends Fragment {
         return thisView;
     }
 
+    public void onRoomSelected(int position){
+        mListener.ChooseRoomFragmentInteraction(roomIDlist.get(position), roomnamelist.get(position), false);
 
+    }
     @Override
     public void onPause(){
         super.onPause();

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/room_list_item">
+
+    <TextView
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:id="@+id/room_list_item_name"
+        android:textSize="25sp"
+        android:layout_marginLeft="30sp"
+        android:layout_weight="4"
+        android:focusable="true"
+        android:clickable="true"
+        android:layout_gravity="center"/>
+
+    <ImageButton
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/room_list_button_delete"
+        android:src="@drawable/room_list_delete_button"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:focusable="true"
+        android:clickable="true"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_marginRight="30sp" />
+
+</LinearLayout>
