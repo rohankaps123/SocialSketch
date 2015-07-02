@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SocialSketch.iml" filepath="$PROJECT_DIR$/SocialSketch.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/color-picker-view/color-picker-view.iml" filepath="$PROJECT_DIR$/color-picker-view/color-picker-view.iml" />
+      <module fileurl="file://$PROJECT_DIR$/socialsketch.iml" filepath="$PROJECT_DIR$/socialsketch.iml" />
     </modules>
   </component>
 </project>

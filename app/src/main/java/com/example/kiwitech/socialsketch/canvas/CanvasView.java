@@ -432,6 +432,8 @@ public class CanvasView extends View{
         PathObject npath = new PathObject(paint);
         npath.getPaint().setColor(nsegment.getColor());
         ArrayList<Pair<Float,Float>> pointlist = nsegment.getArrayList();
+
+
         float preHeight = nsegment.getSizeOrigin().getX();
         float preWidth = nsegment.getSizeOrigin().getY();
         float w = getWidth();
@@ -439,12 +441,9 @@ public class CanvasView extends View{
         float scaleHeight = h/preHeight;
         float scaleWidth = w/preWidth;
         for(Pair<Float,Float> point : pointlist){
-            point.setX(point.getX()*scaleHeight);
-            point.setY(point.getY()*scaleWidth);
+            point.setX(point.getX()*scaleWidth);
+            point.setY(point.getY()*scaleHeight);
         }
-
-        Log.e(TAG,String.valueOf(scaleHeight));
-        Log.e(TAG,String.valueOf(scaleWidth));
 
         npath.getPaint().setStrokeWidth(nsegment.getBrush_size());
         if(pointlist.size() == 1){
