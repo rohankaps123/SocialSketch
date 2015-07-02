@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.kiwitech.socialsketch.ChooseRoomFragment;
 import com.example.kiwitech.socialsketch.MainActivity;
@@ -53,14 +54,10 @@ public class ChooseRoomArrayAdapter extends ArrayAdapter<String> {
         TextView textView = (TextView) rowView.findViewById(R.id.room_list_item_name);
         textView.setText(objects.get(position));
         ImageView deleteButton = (ImageView) rowView.findViewById(R.id.room_list_button_delete);
-        final Firebase mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
-
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                        mFirebaseRef.child("rooms").child(ids.get(position)).setValue(null);
-                        mFirebaseRef.child("members").child(ids.get(position)).setValue(null);
-                        mFirebaseRef.child("canvas").child(ids.get(position)).setValue(null);
+                fragment.onRemoveRoomSelected(position);
             }
         });
 

@@ -237,6 +237,30 @@ public class ChooseRoomFragment extends Fragment {
         mListener = null;
     }
 
+    public void onRemoveRoomSelected(final int position) {
+        mFirebaseRef.child("rooms").child(roomIDlist.get(position)).child("createdBY").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String creator = (String) dataSnapshot.getValue();
+                if (dataSnapshot != null && creator.equals(MainActivity.getThisUserID())) {
+                    mFirebaseRef.child("rooms").child(roomIDlist.get(position)).setValue(null);
+                    mFirebaseRef.child("members").child(roomIDlist.get(position)).setValue(null);
+                    mFirebaseRef.child("canvas").child(roomIDlist.get(position)).setValue(null);
+                    Toast.makeText(getActivity(), "Successfully deleted the Room", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Toast.makeText(getActivity(), "You did not create the room", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this

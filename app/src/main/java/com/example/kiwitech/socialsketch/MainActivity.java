@@ -238,7 +238,9 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             CanvasView cview = (CanvasView) canvasF.getView();
             cview.clearCanvas();
             Toast.makeText(this, "Successfully logged out", Toast.LENGTH_SHORT).show();
-            mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
+            if (getState().equals("canvas") && mFirebaseRef!=null) {
+                mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
+            }
             thisRoomName = "";
             thisRoomID = "";
             roomMembers.clear();
@@ -257,11 +259,14 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
                 roomchooser = new ChooseRoomFragment();
             }
             getFragmentManager().beginTransaction().replace(R.id.main_window, roomchooser, "Choose Room").commit();
-            mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
+            if(getState().equals("canvas")){
+                mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
+            }
             thisRoomName = "";
             thisRoomID = "";
             roomMembers.clear();
             return true;
+
         }
 
         if (id == android.R.id.home){
@@ -347,22 +352,8 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             roomMembers.remove(userID);
         }
         else{
-        mFirebaseRef.child("users").child(userID).child("online").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue().equals(true)) {
-                    mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(userID).setValue(true);
-                } else {
-                    mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(userID).setValue(false);
-                }
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-        addToRoomMembers(userID);
+            mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(userID).setValue(false);
+            addToRoomMembers(userID);
         }
     }
 

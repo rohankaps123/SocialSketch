@@ -58,11 +58,13 @@ public class CanvasFragment extends Fragment {
 
     private ChildEventListener newSegment;
 
+    private ChildEventListener friendStatus;
 
     /**
      * Saves data for each segment and can be used to send to other users.
      */
     private SegmentData segment;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,10 +76,12 @@ public class CanvasFragment extends Fragment {
 
 
     public void addNewSegmentListener(){
+
         newSegment = new ChildEventListener(){
 
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
                 if(dataSnapshot != null){
                     String key = "";
                     String str = "";
@@ -130,10 +134,67 @@ public class CanvasFragment extends Fragment {
         };
         mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
         mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID()).addChildEventListener(newSegment);
+
+        friendStatus = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                String ID = dataSnapshot.getKey();
+                if(!MainActivity.getThisUserID().equals(ID)){
+                if ((Boolean)dataSnapshot.getValue()) {
+                    mFirebaseRef.child("users").child(ID).child("email").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Toast.makeText(getActivity(), (String) dataSnapshot.getValue() + " is online", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
+
+                        }
+                    });
+
+                }else {
+                    mFirebaseRef.child("users").child(ID).child("email").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Toast.makeText(getActivity(), (String) dataSnapshot.getValue() + " is Offline", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
+
+                        }
+                    });
+                }
+                }
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        };
+        mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).addChildEventListener(friendStatus);
     }
 
     public void removeNewSegmentListener(){
-       mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID()).removeEventListener(newSegment);
+        mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID()).removeEventListener(newSegment);
+        mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).removeEventListener(friendStatus);
     }
 
 
@@ -187,6 +248,7 @@ public class CanvasFragment extends Fragment {
             CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
             CanvasView cview = (CanvasView) canvasF.getView();
             cview.clearCanvas();
+            mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
         }
     }
     @Override
@@ -194,6 +256,7 @@ public class CanvasFragment extends Fragment {
         super.onResume();
         if(MainActivity.getState().equals("canvas") && mFirebaseRef!=null){
             addNewSegmentListener();
+            mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(true);
         }
     }
 
@@ -201,7 +264,7 @@ public class CanvasFragment extends Fragment {
     public void onDestroy(){
         super.onDestroy();
         if(MainActivity.getState().equals("canvas")&& mFirebaseRef!=null){
-        removeNewSegmentListener();
+            removeNewSegmentListener();
         }
     }
 
