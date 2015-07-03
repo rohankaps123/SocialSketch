@@ -32,11 +32,12 @@ public class ChooseRoomArrayAdapter extends ArrayAdapter<String> {
     private final Context context;
     //List of objects to show in the List View
     private final List<String> roomNames;
-    //List of
+    //List of Room IDs
     private final List<String> roomIds;
+    //Reference to the fragment
     private final ChooseRoomFragment fragment;
 
-
+    //Constructor for the adapter
     public ChooseRoomArrayAdapter(Context context, int resource, List<String> email,List<String> ids, ChooseRoomFragment fragment) {
         super(context, resource, email);
         this.context = context;
@@ -55,6 +56,7 @@ public class ChooseRoomArrayAdapter extends ArrayAdapter<String> {
         TextView textView = (TextView) rowView.findViewById(R.id.room_list_item_name);
         textView.setText(roomNames.get(position));
         ImageView deleteButton = (ImageView) rowView.findViewById(R.id.room_list_button_delete);
+        // Actions to on clicking different parts of the row view
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

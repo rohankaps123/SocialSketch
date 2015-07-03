@@ -30,7 +30,7 @@ import java.util.Map;
 
 
 /**
- * A fragment representing a list of rooms available.
+ * A fragment representing a list of rooms available and an interface for selecting the room
  * Activities containing this fragment MUST implement the {@link ChooseRoomFragmentListener}
  * interface.
  * @author Rohan Kapoor
@@ -42,11 +42,11 @@ public class ChooseRoomFragment extends Fragment {
      */
     private static final String TAG = ChooseRoomFragment.class.getSimpleName();
     /**
-     * Listener class to be implemented in the class that implements ChooseFriendFragment
+     * Listener class to be implemented in the class that use ChooseRoomFragment
      */
     private ChooseRoomFragmentListener mListener;
     /**
-     * ListView that shows all the friends
+     * ListView that shows all the rooms
      */
     private ListView roomlist;
     /**
@@ -54,7 +54,7 @@ public class ChooseRoomFragment extends Fragment {
      */
     final Firebase mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
     /**
-     * List of all the existing Rooms
+     * List of all the existing Rooms with IDs
      */
     private ArrayList<String> roomIDlist;
 
@@ -64,7 +64,7 @@ public class ChooseRoomFragment extends Fragment {
     private EditText newRoomName;
 
     /**
-     * Listener to listen for addd child events in the database
+     * Listener to listen for add child events in the database
      */
     private ChildEventListener newRoomNameListener;
     /**
@@ -76,10 +76,12 @@ public class ChooseRoomFragment extends Fragment {
      */
     private Context thiscontext;
     /**
-     * Arraylist for storing the emails for the users got using userID
+     * Arraylist for storing the names for the rooms got using userID
      */
     private ArrayList<String> roomnamelist;
-
+    /**
+     * Reference to the fragment
+     */
     private Fragment thisFragment = this;
 
     /*
@@ -107,14 +109,6 @@ public class ChooseRoomFragment extends Fragment {
         roomListAdapter = new ChooseRoomArrayAdapter(thiscontext,
                 R.layout.room_list_item, roomnamelist,roomIDlist,this);
         roomlist.setAdapter(roomListAdapter);
-
-        /*roomlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long arg3) {
-                view.setSelected(true);
-            }
-        });*/
-
 
         Button newRoomButton = (Button) thisView.findViewById(R.id.create_room_button);
         Button localUseButton = (Button) thisView.findViewById(R.id.use_local_button);

@@ -252,7 +252,6 @@ public class CanvasView extends View{
                     segment.setColor(path_color);
                     segment.setSizeOrigin(new Pair((float) getHeight(), (float) getWidth()));
                     DisplayMetrics metrics = getResources().getDisplayMetrics();
-                    segment.setDpi(metrics.densityDpi);
                     segment.setIsErase(eraseMode);
                     try {
                         byte[] by_new = s.serialize(segment);
@@ -446,7 +445,7 @@ public class CanvasView extends View{
         if(nsegment.isErase()){
             npath.getPaint().setAlpha(255);
         }
-        npath.getPaint().setStrokeWidth(nsegment.getBrush_size() * metrics.density);
+        npath.getPaint().setStrokeWidth(Math.round(nsegment.getBrush_size() * metrics.density));
         ArrayList<Pair<Float,Float>> pointlist = nsegment.getArrayList();
 
         float preHeight = nsegment.getSizeOrigin().getX();

@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 
 /**
- * A fragment representing a list of friends.
+ * A fragment representing a list of friends to add to the canvas for shared drawing
  * Activities containing this fragment MUST implement the {@link ChooseFriendFragmentListener}
  * interface.
  * @author Rohan Kapoor
@@ -117,16 +117,18 @@ public class ChooseFriendFragment extends Fragment {
         userlist = (ListView) thisView.findViewById(R.id.add_friend_list_view);
         friendslist = new ArrayList<String>();
         friendslistemail = new ArrayList<String>();
-
+        // Set Adapter for listview
         friendlistadapter = new ChooseFriendsArrayAdapter(thiscontext,
                 R.layout.friend_list_item, friendslistemail,friendslist);
         userlist.setAdapter(friendlistadapter);
-
+        //Set What to do on Row click
         userlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long arg3) {
                 view.setSelected(true);
                 CheckBox added_check = (CheckBox) view.findViewById(R.id.friend_list_item_checkbox);
+                //Set checked if it was checked and unchecked if it was unchecked.
+                //Remove as a member if it was checked and add as a member if it was unchecked
                 if(added_check.isChecked()){
                     added_check.setChecked(false);
                     mListener.ChooseFriendFragmentInteraction("remove", friendslist.get(position), friendslistemail.get(position));
@@ -301,7 +303,6 @@ public class ChooseFriendFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface ChooseFriendFragmentListener {
-        // TODO: Update argument type and name
         public void ChooseFriendFragmentInteraction(String action,String userID, String userEmail);
     }
 
