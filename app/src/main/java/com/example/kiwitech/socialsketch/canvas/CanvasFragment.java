@@ -244,10 +244,8 @@ public class CanvasFragment extends Fragment {
     public void onPause(){
         super.onPause();
         if(MainActivity.getState().equals("canvas") && mFirebaseRef!=null){
-            removeNewSegmentListener();
             CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
             CanvasView cview = (CanvasView) canvasF.getView();
-            cview.clearCanvas();
             mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
         }
     }
@@ -255,7 +253,6 @@ public class CanvasFragment extends Fragment {
     public void onResume(){
         super.onResume();
         if(MainActivity.getState().equals("canvas") && mFirebaseRef!=null){
-            addNewSegmentListener();
             mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(true);
         }
     }
@@ -324,7 +321,7 @@ public class CanvasFragment extends Fragment {
         SeekBar slider = (SeekBar)sizeSetter.findViewById(R.id.slider_dialog);
         slider.setFocusable(true);
         //Set Max Brush Size to 200 px
-        slider.setMax(200);
+        slider.setMax(50);
         if(brush_size != 0) {
             slider.setProgress(brush_size);
         }

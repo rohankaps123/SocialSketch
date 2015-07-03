@@ -9,6 +9,7 @@ import android.graphics.Point;
 import android.util.AttributeSet;
 
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -84,7 +85,7 @@ public class CanvasView extends View{
     /**
      * Stores the Touch Tolerance for interpolation
      */
-    private static final float TOUCH_TOLERANCE = 4;
+    private static float TOUCH_TOLERANCE = 4;
     /**
      * To keep track of whether the finger moved or not
      */
@@ -106,6 +107,8 @@ public class CanvasView extends View{
      */
     private int eraser_size;
 
+    private DisplayMetrics metrics;
+
     private Boolean newCanvas = true;
     /**
      * Constructor to setup the Canvas.
@@ -115,6 +118,7 @@ public class CanvasView extends View{
      */
     public CanvasView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        metrics = getResources().getDisplayMetrics();
         setupCanvas();
     }
 
@@ -125,17 +129,17 @@ public class CanvasView extends View{
         segment = new SegmentData();
         path_canvas = new PathObject(new Paint());
         canvas = new Canvas();
-        brush_size = 10;
-        eraser_size = 10;
+        brush_size = 2;
+        eraser_size = 2;
         path_color = 0xFF660000;
         path_canvas.getPaint().setColor(path_color);
         path_canvas.getPaint().setAntiAlias(true);
-        path_canvas.getPaint().setStrokeWidth(brush_size);
+        path_canvas.getPaint().setStrokeWidth(brush_size * metrics.density);
         path_canvas.getPaint().setStyle(Paint.Style.STROKE);
         path_canvas.getPaint().setStrokeJoin(Paint.Join.ROUND);
         path_canvas.getPaint().setStrokeCap(Paint.Cap.ROUND);
         path_canvas.getPaint().setAlpha(255);
-
+        TOUCH_TOLERANCE =  TOUCH_TOLERANCE*metrics.density;
     }
 
 
@@ -240,9 +244,15 @@ public class CanvasView extends View{
                     Firebase mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
                     Serializer s = new Serializer();
                     String str;
-                    segment.setBrush_size((int) path_canvas.getPaint().getStrokeWidth());
-                    segment.setColor(path_canvas.getPaint().getColor());
-                    segment.setSizeOrigin(new Pair((float)getHeight(),(float)getWidth()));
+                    if(eraseMode){
+                        segment.setBrush_size(eraser_size);
+                    }else{
+                        segment.setBrush_size(brush_size);
+                    }
+                    segment.setColor(path_color);
+                    segment.setSizeOrigin(new Pair((float) getHeight(), (float) getWidth()));
+                    DisplayMetrics metrics = getResources().getDisplayMetrics();
+                    segment.setDpi(metrics.densityDpi);
                     segment.setIsErase(eraseMode);
                     try {
                         byte[] by_new = s.serialize(segment);
@@ -290,7 +300,7 @@ public class CanvasView extends View{
             eraseMode = false;
         }
         path_canvas.getPaint().setColor(path_color);
-        path_canvas.getPaint().setStrokeWidth(brush_size);
+        path_canvas.getPaint().setStrokeWidth(brush_size*metrics.density);
     }
 
 
@@ -298,6 +308,7 @@ public class CanvasView extends View{
      * Sets the brush type to erase and invoke a dialog to set the size
      */
     public void setEraser() {
+        if(!eraseMode){
         //save the current path_color and change it to erase
         eraseMode = true;
         saved_alpha = path_canvas.getPaint().getAlpha();
@@ -305,7 +316,8 @@ public class CanvasView extends View{
         path_color = 0xFFFFFFFF;
         path_canvas.getPaint().setColor(path_color);
         path_canvas.getPaint().setAlpha(255);
-        path_canvas.getPaint().setStrokeWidth(eraser_size);
+        }
+        path_canvas.getPaint().setStrokeWidth(eraser_size*metrics.density);
     }
 
     /**
@@ -386,7 +398,7 @@ public class CanvasView extends View{
             path_canvas.getPaint().setColor(path_color);
             eraseMode = false;
         }
-        return path_canvas.getPaint().getColor();
+        return path_color;
     }
 
     /**
@@ -411,7 +423,7 @@ public class CanvasView extends View{
      */
     public void setEraser_size(int size){
         eraser_size = size;
-        path_canvas.getPaint().setStrokeWidth(eraser_size);
+        path_canvas.getPaint().setStrokeWidth(eraser_size*metrics.density);
     }
 
     /**
@@ -420,7 +432,7 @@ public class CanvasView extends View{
      */
     public void setBrush_size(int size){
         brush_size = size;
-        path_canvas.getPaint().setStrokeWidth(brush_size);
+        path_canvas.getPaint().setStrokeWidth(brush_size*metrics.density);
     }
 
     public void updateCanvas(String segment) throws IOException, ClassNotFoundException {
@@ -431,8 +443,11 @@ public class CanvasView extends View{
         Paint paint = new Paint(path_canvas.getPaint());
         PathObject npath = new PathObject(paint);
         npath.getPaint().setColor(nsegment.getColor());
+        if(nsegment.isErase()){
+            npath.getPaint().setAlpha(255);
+        }
+        npath.getPaint().setStrokeWidth(nsegment.getBrush_size() * metrics.density);
         ArrayList<Pair<Float,Float>> pointlist = nsegment.getArrayList();
-
 
         float preHeight = nsegment.getSizeOrigin().getX();
         float preWidth = nsegment.getSizeOrigin().getY();
@@ -444,8 +459,6 @@ public class CanvasView extends View{
             point.setX(point.getX()*scaleWidth);
             point.setY(point.getY()*scaleHeight);
         }
-
-        npath.getPaint().setStrokeWidth(nsegment.getBrush_size());
         if(pointlist.size() == 1){
             npath.setIsPoint(true);
             npath.getPoint().set(Math.round(pointlist.get(0).getX()), Math.round(pointlist.get(0).getY()));

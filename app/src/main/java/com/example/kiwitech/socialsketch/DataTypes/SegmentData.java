@@ -34,6 +34,10 @@ public class SegmentData implements Serializable {
      * Whether the segment is an eraser segment
      */
     private boolean isErase;
+    /**
+     * Dpi of the origin device
+     */
+    private float dpi;
 
     /**
      * Set the brush size used to draw the segment
@@ -144,5 +148,21 @@ public class SegmentData implements Serializable {
      */
     public void setSizeOrigin(Pair<Float, Float> sizeOrigin) {
         SizeOrigin = sizeOrigin;
+    }
+
+    /**
+     * Get the Dpi of the origin device
+     * @return
+     */
+    public float getDpi() {
+        return dpi;
+    }
+
+    /**
+     * Set the Dpi of the origin device
+     * @param dpi
+     */
+    public void setDpi(float dpi) {
+        this.dpi = dpi;
     }
 }
