@@ -1,0 +1,51 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:id="@+id/chat_fragment"
+    android:background="#EEEEEE"
+    android:clickable="true">
+
+    <ListView
+        android:id="@+id/chat_fragment_listview"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:transcriptMode="alwaysScroll"
+        android:layout_marginBottom="60sp">
+    </ListView>
+
+    <RelativeLayout
+        android:id="@+id/chat_fragment_message_box"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:orientation="vertical" >
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:layout_marginLeft="15sp"
+            android:ems="10"
+            android:id="@+id/chat_fragment_message_edittext"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_toLeftOf="@+id/chat_fragment_button_send" />
+
+        <Button
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_marginRight="15sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/chat_fragment_send_button"
+            android:id="@+id/chat_fragment_button_send"
+            android:layout_alignBottom="@+id/chat_fragment_message_edittext"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+    </RelativeLayout>
+
+</RelativeLayout>

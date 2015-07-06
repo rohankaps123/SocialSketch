@@ -23,5 +23,9 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="add_room_buttton">Create New Room</string>
     <string name="local_use_button">Use Local Canvas</string>
+    <string name="message_room_button">Messages</string>
+    <string name="chat_fragment_send_button">Send</string>
+    <string name="profile_other">Other Profiles</string>
+    <string name="profile_me">My Profile</string>
 
 </resources>

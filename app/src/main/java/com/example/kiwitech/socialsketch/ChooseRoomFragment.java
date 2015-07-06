@@ -126,7 +126,6 @@ public class ChooseRoomFragment extends Fragment {
                     roomnamelist.add((String) newRoom.get("name"));
                     roomListAdapter.notifyDataSetChanged();
                 }
-
             }
 
             @Override
@@ -250,7 +249,9 @@ public class ChooseRoomFragment extends Fragment {
                             mFirebaseRef.child("rooms").child(roomIDlist.get(position)).setValue(null);
                             mFirebaseRef.child("members").child(roomIDlist.get(position)).setValue(null);
                             mFirebaseRef.child("canvas").child(roomIDlist.get(position)).setValue(null);
-                            Toast.makeText(getActivity(), "Successfully deleted the Room", Toast.LENGTH_SHORT).show();
+                                mFirebaseRef.child("messages").child(roomIDlist.get(position)).setValue(null);
+
+                                Toast.makeText(getActivity(), "Successfully deleted the Room", Toast.LENGTH_SHORT).show();
                             }
                             else{
                                 Toast.makeText(getActivity(), "Error: Members Online", Toast.LENGTH_SHORT).show();

@@ -167,6 +167,8 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         MainActivity.setState("login");
         getFragmentManager().beginTransaction().replace(R.id.main_window,login , "Login").commit();
         Button addFriend = (Button) findViewById(R.id.choose_friends_button);
+        Button messaging = (Button) findViewById(R.id.chat_room_button);
+        messaging.setOnClickListener(ButtonHandler);
         addFriend.setOnClickListener(ButtonHandler);
     }
 
@@ -188,6 +190,9 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
+                case R.id.chat_room_button:
+                    setupChatRoom();
+                    break;
                 case R.id.choose_friends_button:
                     setupaddFriendSelector();
                     break;
@@ -202,6 +207,15 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         ChooseFriendFragment nfadd = new ChooseFriendFragment();
         getFragmentManager().beginTransaction().replace(R.id.main_window, nfadd, "Choose friends").addToBackStack("Main activity").commit();
     }
+
+    /**
+     * Setup the Add Friend fragment and switch to it
+     */
+    private void setupChatRoom() {
+        ChatFragment nChat = new ChatFragment();
+        getFragmentManager().beginTransaction().replace(R.id.main_window, nChat, "Chat").addToBackStack("Main activity").commit();
+    }
+
 
     // Creates the options menu
         @Override
