@@ -105,7 +105,6 @@ public class ChooseRoomFragment extends Fragment {
         roomlist = (ListView) thisView.findViewById(R.id.choose_room_list_view);
         roomIDlist = new ArrayList<String>();
         roomnamelist = new ArrayList<String>();
-
         roomListAdapter = new ChooseRoomArrayAdapter(thiscontext,
                 R.layout.room_list_item, roomnamelist,roomIDlist,this);
         roomlist.setAdapter(roomListAdapter);
@@ -159,6 +158,8 @@ public class ChooseRoomFragment extends Fragment {
     }
 
     public void onRoomSelected(int position){
+        MainActivity.setState("canvas");
+        getActivity().invalidateOptionsMenu();
         mListener.ChooseRoomFragmentInteraction(roomIDlist.get(position), roomnamelist.get(position), false);
 
     }
@@ -185,8 +186,9 @@ public class ChooseRoomFragment extends Fragment {
                 case R.id.use_local_button:
                     //close the keyboard on click
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    mListener.ChooseRoomFragmentInteraction("","",true);
+                    mListener.ChooseRoomFragmentInteraction("", "", true);
                     MainActivity.setState("canvas");
+                    getActivity().invalidateOptionsMenu();
                     getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
                     break;
             }

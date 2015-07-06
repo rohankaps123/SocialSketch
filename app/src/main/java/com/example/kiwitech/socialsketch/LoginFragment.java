@@ -14,6 +14,9 @@ import android.app.Fragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -103,6 +106,7 @@ public class LoginFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        getActivity().invalidateOptionsMenu();
         getActivity().getActionBar().hide();
         // Inflate the layout for this fragment
         View thisView = inflater.inflate(R.layout.fragment_login, container, false);
@@ -143,7 +147,6 @@ public class LoginFragment extends Fragment implements
 
         return thisView;
     }
-
 
     /**
      * On click listener for the Buttons
@@ -201,12 +204,12 @@ public class LoginFragment extends Fragment implements
             /* Update authenticated user and show login buttons */
             setAuthenticatedUser(null);
             MainActivity.setState("login");
-            setUserOffineDB();
+            setUserOfflineDB();
 
         }
     }
 
-    private void setUserOffineDB() {
+    private void setUserOfflineDB() {
         mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("online").setValue(false);
     }
 
@@ -294,6 +297,7 @@ public class LoginFragment extends Fragment implements
             ChooseRoomFragment roomchooser = new ChooseRoomFragment();
             MainActivity.setState("chooseRoom");
             getFragmentManager().beginTransaction().replace(R.id.main_window, roomchooser, "Choose Room").commit();
+            getActivity().invalidateOptionsMenu();
         }
         else{
             return;

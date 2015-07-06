@@ -78,6 +78,8 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
      * Boolean to tell whether the user wants to use app locally
      */
     private static Boolean isLocal = true;
+    private ChatFragment nchat;
+    private ChooseFriendFragment nfadd;
 
     /**
      * Get the current room ID
@@ -178,6 +180,11 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     public void onBackPressed() {
         if (getFragmentManager().getBackStackEntryCount() > 0) {
             getFragmentManager().popBackStack();
+            if(getState().equals("Choose friends")){
+                MainActivity.setState("canvas");
+            }else if(getState().equals("chat")){
+                MainActivity.setState("canvas");
+            }
         } else {
             super.onBackPressed();
         }
@@ -204,7 +211,8 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
      * Setup the Add Friend fragment and switch to it
      */
     private void setupaddFriendSelector() {
-        ChooseFriendFragment nfadd = new ChooseFriendFragment();
+        nfadd = new ChooseFriendFragment();
+        setState("friends");
         getFragmentManager().beginTransaction().replace(R.id.main_window, nfadd, "Choose friends").addToBackStack("Main activity").commit();
     }
 
@@ -212,8 +220,9 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
      * Setup the Add Friend fragment and switch to it
      */
     private void setupChatRoom() {
-        ChatFragment nChat = new ChatFragment();
-        getFragmentManager().beginTransaction().replace(R.id.main_window, nChat, "Chat").addToBackStack("Main activity").commit();
+         nchat = new ChatFragment();
+        setState("chat");
+        getFragmentManager().beginTransaction().replace(R.id.main_window, nchat, "chat").addToBackStack("Main activity").commit();
     }
 
 
@@ -222,6 +231,28 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+            if(getState().equals("login")||getState().equals("createnew")){
+                MenuItem settings = menu.findItem(R.id.action_settings);
+                MenuItem logout = menu.findItem(R.id.action_logout);
+                MenuItem leaveRoom = menu.findItem(R.id.action_leave_room);
+                settings.setVisible(false);
+                logout.setVisible(false);
+                leaveRoom.setVisible(false);
+            }else if(getState().equals("chooseRoom")){
+                MenuItem settings = menu.findItem(R.id.action_settings);
+                MenuItem logout = menu.findItem(R.id.action_logout);
+                MenuItem leaveRoom = menu.findItem(R.id.action_leave_room);
+                settings.setVisible(true);
+                logout.setVisible(true);
+                leaveRoom.setVisible(false);
+            }else{
+                MenuItem settings = menu.findItem(R.id.action_settings);
+                MenuItem logout = menu.findItem(R.id.action_logout);
+                MenuItem leaveRoom = menu.findItem(R.id.action_leave_room);
+                settings.setVisible(true);
+                logout.setVisible(true);
+                leaveRoom.setVisible(true);
+            }
         return true;
     }
 
@@ -267,8 +298,19 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             }
             getFragmentManager().beginTransaction().replace(R.id.login_window,roomchooser, "Choose Room").commit();
         }
-        else
-        if(isLocal){
+        else if(state.equals("chat")){
+            if(nchat == null){
+                nchat = new ChatFragment();
+            }
+            getFragmentManager().beginTransaction().replace(R.id.main_window, nchat, "chat").addToBackStack("Main activity").commit();
+        }
+        else if(state.equals("friends")){
+            if(nfadd == null){
+                nfadd = new ChooseFriendFragment();
+            }
+            getFragmentManager().beginTransaction().replace(R.id.main_window, nfadd, "Choose friends").addToBackStack("Main activity").commit();
+        }
+        else if(isLocal){
             setLocalCanvas();
             getActionBar().show();
             getActionBar().setDisplayHomeAsUpEnabled(false);
@@ -308,8 +350,12 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             return true;
         }
         if (id == R.id.action_logout) {
+            if(getState().equals("chat")|| getState().equals("friends")){
+                onBackPressed();
+                setState("canvas");
+            }
             //Set the user as offline in the canvas when logging out
-            if (getState().equals("canvas") && mFirebaseRef!=null) {
+            if ((getState().equals("canvas")) && mFirebaseRef!=null) {
                 mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
             }
             //logout user when ever logout is selected and bring up the login fragment
@@ -326,8 +372,12 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             return true;
         }
         if (id == R.id.action_leave_room) {
+            if(getState().equals("chat") || getState().equals("friends")){
+                onBackPressed();
+                setState("canvas");
+            }
             //Set the user as offline in the canvas when leaving the room
-            if(getState().equals("canvas")){
+            if(getState().equals("canvas")||getState().equals("chat")){
                 mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
             }
             //logout user when ever logout is selected and bring up the login fragment
