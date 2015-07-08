@@ -43,10 +43,14 @@ public class ChatMessageAdapter extends ArrayAdapter<String> {
         this.membersNames = membersNames;
     }
 
+    @Override
+    public int getCount(){
+        return membersNames.size();
+    }
+
     // Get the view For each row using the data
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).
                     inflate(R.layout.chat_fragment_list_item, parent, false);
@@ -67,14 +71,14 @@ public class ChatMessageAdapter extends ArrayAdapter<String> {
             holder.imageLeft.setVisibility(View.GONE);
             holder.body.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
             holder.body.setText(message);
+            return convertView;
         } else {
             holder.imageLeft.setVisibility(View.VISIBLE);
             holder.imageRight.setVisibility(View.GONE);
             holder.body.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-            holder.body.setText(membersNames.get(position) + " : " + message);
+            holder.body.setText(message);
+            return convertView;
         }
-
-        return convertView;
     }
 
 

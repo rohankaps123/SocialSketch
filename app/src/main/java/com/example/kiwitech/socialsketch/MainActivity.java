@@ -179,12 +179,12 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     @Override
     public void onBackPressed() {
         if (getFragmentManager().getBackStackEntryCount() > 0) {
-            getFragmentManager().popBackStack();
             if(getState().equals("Choose friends")){
                 MainActivity.setState("canvas");
             }else if(getState().equals("chat")){
                 MainActivity.setState("canvas");
             }
+            getFragmentManager().popBackStack();
         } else {
             super.onBackPressed();
         }

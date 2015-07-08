@@ -107,6 +107,8 @@ public class ChatFragment extends Fragment {
         messages = new ArrayList<String>();
         members = new ArrayList<String>();
         membersNames = new ArrayList<String>();
+        Log.e(TAG,String.valueOf(messages.size()));
+
         // Set Adapter for listview
         messageAdapter = new ChatMessageAdapter(thiscontext,
                 R.layout.chat_fragment_list_item, messages,members,membersNames);
@@ -128,27 +130,13 @@ public class ChatFragment extends Fragment {
                         key = child.getKey();
                         str = (String) child.getValue();
                     }
-                    mFirebaseRef.child("users").child(key).child("email")
-                            .addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    membersNames.add((String) dataSnapshot.getValue());
-                                    //Notify the adapter that the data is changed
-                                    messageAdapter.notifyDataSetChanged();
-                                }
-
-                                @Override
-                                public void onCancelled(FirebaseError firebaseError) {
-
-                                }
-                            });
-                        //Add userId to the list of friends
+                    //Add userId to the list of friends
                     members.add(key);
                     //Add email to the list of the friends
                     messages.add(str);
-
+                    Log.e(TAG,key);
+                    getEmail(key);
                 }
-
             }
 
             @Override
@@ -178,21 +166,27 @@ public class ChatFragment extends Fragment {
 
 
     @Override
-    public void onPause(){
-        super.onPause();
-        getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-        //Remove the eventListener
-        mFirebaseRef.child("messages").child(MainActivity.getThisRoomID()).removeEventListener(newMessageListener);
-    }
-
-    @Override
     public void onDestroy(){
         super.onDestroy();
-        getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-        //Remove the eventListener
         mFirebaseRef.child("messages").child(MainActivity.getThisRoomID()).removeEventListener(newMessageListener);
     }
 
+
+    public void getEmail(String key){
+        mFirebaseRef.child("users").child(key).child("email")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        membersNames.add((String) dataSnapshot.getValue());
+                        messageAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+    }
     /**
      * Onlick listener to keep track of the add frind button
      */
