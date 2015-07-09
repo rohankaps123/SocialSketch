@@ -27,5 +27,6 @@
     <string name="chat_fragment_send_button">Send</string>
     <string name="profile_other">Other Profiles</string>
     <string name="profile_me">My Profile</string>
+    <string name="add_backround_option">Add Background</string>
 
 </resources>

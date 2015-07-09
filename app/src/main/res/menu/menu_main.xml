@@ -6,6 +6,10 @@
         android:title="@string/action_settings"
         android:orderInCategory="100"
         app:showAsAction="never" />
+    <item android:id="@+id/add_background_option"
+        android:title="@string/add_backround_option"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_leave_room"
         android:title="Leave Room"

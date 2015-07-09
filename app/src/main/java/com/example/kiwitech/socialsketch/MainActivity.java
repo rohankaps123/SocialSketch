@@ -170,10 +170,13 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     @Override
     public void onBackPressed() {
         if (getFragmentManager().getBackStackEntryCount() > 0) {
-            if(getState().equals("Choose friends")){
+            if(getState().equals("friends")){
                 MainActivity.setState("canvas");
+                invalidateOptionsMenu();
             }else if(getState().equals("chat")){
                 MainActivity.setState("canvas");
+                getActionBar().setDisplayHomeAsUpEnabled(false);
+                invalidateOptionsMenu();
             }
             getFragmentManager().popBackStack();
         } else {
@@ -204,6 +207,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     private void setupaddFriendSelector() {
         nfadd = new ChooseFriendFragment();
         setState("friends");
+        invalidateOptionsMenu();
         getFragmentManager().beginTransaction().replace(R.id.main_window, nfadd, "Choose friends").addToBackStack("Main activity").commit();
     }
 
@@ -213,6 +217,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     private void setupChatRoom() {
          nchat = new ChatFragment();
         setState("chat");
+        invalidateOptionsMenu();
         getFragmentManager().beginTransaction().replace(R.id.main_window, nchat, "chat").addToBackStack("Main activity").commit();
     }
 
@@ -224,22 +229,39 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         getMenuInflater().inflate(R.menu.menu_main, menu);
             if(getState().equals("login")||getState().equals("createnew")){
                 MenuItem settings = menu.findItem(R.id.action_settings);
+                MenuItem addBackground = menu.findItem(R.id.add_background_option);
                 MenuItem logout = menu.findItem(R.id.action_logout);
                 MenuItem leaveRoom = menu.findItem(R.id.action_leave_room);
+                addBackground.setVisible(false);
                 settings.setVisible(false);
                 logout.setVisible(false);
                 leaveRoom.setVisible(false);
             }else if(getState().equals("chooseRoom")){
+                MenuItem addBackground = menu.findItem(R.id.add_background_option);
                 MenuItem settings = menu.findItem(R.id.action_settings);
                 MenuItem logout = menu.findItem(R.id.action_logout);
                 MenuItem leaveRoom = menu.findItem(R.id.action_leave_room);
                 settings.setVisible(true);
                 logout.setVisible(true);
                 leaveRoom.setVisible(false);
-            }else{
+                addBackground.setVisible(false);
+
+            }else if(getState().equals("chat") || getState().equals("friends")){
                 MenuItem settings = menu.findItem(R.id.action_settings);
                 MenuItem logout = menu.findItem(R.id.action_logout);
                 MenuItem leaveRoom = menu.findItem(R.id.action_leave_room);
+                MenuItem addBackground = menu.findItem(R.id.add_background_option);
+                addBackground.setVisible(false);
+                settings.setVisible(true);
+                logout.setVisible(true);
+                leaveRoom.setVisible(true);
+            }
+            else{
+                MenuItem settings = menu.findItem(R.id.action_settings);
+                MenuItem logout = menu.findItem(R.id.action_logout);
+                MenuItem leaveRoom = menu.findItem(R.id.action_leave_room);
+                MenuItem addBackground = menu.findItem(R.id.add_background_option);
+                addBackground.setVisible(true);
                 settings.setVisible(true);
                 logout.setVisible(true);
                 leaveRoom.setVisible(true);
@@ -253,6 +275,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     @Override
     public void onResume(){
         super.onResume();
+        invalidateOptionsMenu();
         String root = Environment.getExternalStorageDirectory().toString();
         File myDir = new File(root + "/SocialSketch/temp");
         if(myDir.exists()){
@@ -376,6 +399,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         if (id == R.id.action_leave_room) {
             if(state.equals("localcanvas")){
                 setState("chooseRoom");
+                invalidateOptionsMenu();
                 CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
                 CanvasView cview = (CanvasView) canvasF.getView();
                 cview.clearCanvas();
@@ -395,8 +419,9 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
                 mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
             }
             //logout user when ever logout is selected and bring up the login fragment
-            setState("chooseRoom");
-            CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
+                setState("chooseRoom");
+                invalidateOptionsMenu();
+                CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
             CanvasView cview = (CanvasView) canvasF.getView();
             cview.clearCanvas();
             canvasF.removeNewSegmentListener();
