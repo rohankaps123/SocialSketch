@@ -158,7 +158,6 @@ public class ChooseRoomFragment extends Fragment {
     }
 
     public void onRoomSelected(int position){
-        MainActivity.setState("canvas");
         getActivity().invalidateOptionsMenu();
         mListener.ChooseRoomFragmentInteraction(roomIDlist.get(position), roomnamelist.get(position), false);
 
@@ -187,7 +186,6 @@ public class ChooseRoomFragment extends Fragment {
                     //close the keyboard on click
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     mListener.ChooseRoomFragmentInteraction("", "", true);
-                    MainActivity.setState("canvas");
                     getActivity().invalidateOptionsMenu();
                     getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
                     break;

@@ -76,7 +76,7 @@ public class ChatMessageAdapter extends ArrayAdapter<String> {
             holder.imageLeft.setVisibility(View.VISIBLE);
             holder.imageRight.setVisibility(View.GONE);
             holder.body.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-            holder.body.setText(message);
+            holder.body.setText(membersNames.get(position) + " : " + message);
             return convertView;
         }
     }

@@ -240,7 +240,7 @@ public class CanvasView extends View{
                     //add point to the current segment
                     segment.addPoint(touchX, touchY);
                 }
-                if(!MainActivity.getIsLocal()) {
+                if(!MainActivity.getState().equals("localcanvas")) {
                     Firebase mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
                     Serializer s = new Serializer();
                     String str;

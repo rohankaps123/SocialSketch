@@ -107,7 +107,6 @@ public class ChatFragment extends Fragment {
         messages = new ArrayList<String>();
         members = new ArrayList<String>();
         membersNames = new ArrayList<String>();
-        Log.e(TAG,String.valueOf(messages.size()));
 
         // Set Adapter for listview
         messageAdapter = new ChatMessageAdapter(thiscontext,
@@ -134,8 +133,8 @@ public class ChatFragment extends Fragment {
                     members.add(key);
                     //Add email to the list of the friends
                     messages.add(str);
-                    Log.e(TAG,key);
-                    getEmail(key);
+                    membersNames.add(MainActivity.getRoomMembersName().get(MainActivity.getRoomMembers().indexOf(key)));
+                    messageAdapter.notifyDataSetChanged();
                 }
             }
 
@@ -171,22 +170,6 @@ public class ChatFragment extends Fragment {
         mFirebaseRef.child("messages").child(MainActivity.getThisRoomID()).removeEventListener(newMessageListener);
     }
 
-
-    public void getEmail(String key){
-        mFirebaseRef.child("users").child(key).child("email")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        membersNames.add((String) dataSnapshot.getValue());
-                        messageAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-
-                    }
-                });
-    }
     /**
      * Onlick listener to keep track of the add frind button
      */
