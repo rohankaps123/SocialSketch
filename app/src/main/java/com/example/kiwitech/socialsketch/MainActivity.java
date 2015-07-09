@@ -175,6 +175,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
                 invalidateOptionsMenu();
             }else if(getState().equals("chat")){
                 MainActivity.setState("canvas");
+                
                 getActionBar().setDisplayHomeAsUpEnabled(false);
                 invalidateOptionsMenu();
             }
