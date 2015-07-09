@@ -6,9 +6,15 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,7 +32,12 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Random;
 
 import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
 
@@ -175,7 +186,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
                 invalidateOptionsMenu();
             }else if(getState().equals("chat")){
                 MainActivity.setState("canvas");
-                
+
                 getActionBar().setDisplayHomeAsUpEnabled(false);
                 invalidateOptionsMenu();
             }
@@ -440,13 +451,61 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             return true;
 
         }
-
+        if (id == R.id.add_background_option){
+            selectImage();
+            return true;
+        }
         if (id == android.R.id.home){
         onBackPressed();
         return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+    private void selectImage() {
+        mFirebaseRef.child("rooms").child(MainActivity.getThisRoomID()).child("createdBY")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue().toString().equals(MainActivity.getThisUserID())) {
+                            final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setTitle("Add Photo!");
+                            builder.setItems(options, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int item) {
+                                    if (options[item].equals("Take Photo")) {
+                                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                        File f = new File(android.os.Environment.getExternalStorageDirectory(), "temp.jpg");
+                                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
+                                        startActivityForResult(intent, 2);
+                                    } else if (options[item].equals("Choose from Gallery")) {
+                                        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                        startActivityForResult(intent, 3);
+
+                                    } else if (options[item].equals("Cancel")) {
+                                        dialog.dismiss();
+                                    }
+                                }
+                            });
+                            builder.show();
+                        } else {
+                            Toast.makeText(thisContext,"Only creator can change the Background", Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+
+
+    }
+
 
     /**
      * listener interface implementation to communicate from toolFragment to canvas fragment
@@ -495,10 +554,57 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
      * @param data
      */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == login.RC_GOOGLE_LOGIN) {
-            login.onActivityResult(requestCode, resultCode, data);
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == login.RC_GOOGLE_LOGIN) {
+                login.onActivityResult(requestCode, resultCode, data);
+                }
+            else if (requestCode == 2) {
+                File f = new File(Environment.getExternalStorageDirectory().toString());
+                for (File temp : f.listFiles()) {
+                    if (temp.getName().equals("temp.jpg")) {
+                        f = temp;
+                        break;
+                    }
+                }
+                try {
+                    Bitmap bitmap;
+                    BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+                    bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(),
+                            bitmapOptions);
+                    if(bitmap == null){
+                        Log.e(TAG,"is null");
+                    }
+                    String path = android.os.Environment
+                            .getExternalStorageDirectory().toString()
+                            + "/SocialSketch/Background";
+                    f.delete();
+                    Random generator = new Random();
+                    int n = 10000;
+                    n = generator.nextInt(n);
+                    String fname = "Image-"+ n +".jpg" ;
+                    File file = new File(path,fname);
+                    try {
+                        FileOutputStream outFile = new FileOutputStream(file);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outFile);
+                        outFile.flush();
+                        outFile.close();
+                    }  catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if (requestCode == 3) {
+                Uri selectedImage = data.getData();
+                String[] filePath = { MediaStore.Images.Media.DATA };
+                Cursor c = getContentResolver().query(selectedImage,filePath, null, null, null);
+                c.moveToFirst();
+                int columnIndex = c.getColumnIndex(filePath[0]);
+                String picturePath = c.getString(columnIndex);
+                c.close();
+                Bitmap thumbnail = (BitmapFactory.decodeFile(picturePath));
+            }
         }
     }
 
