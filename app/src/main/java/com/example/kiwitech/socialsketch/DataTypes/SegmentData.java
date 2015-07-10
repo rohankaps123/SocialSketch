@@ -1,5 +1,6 @@
 package com.example.kiwitech.socialsketch.DataTypes;
 
+import android.graphics.Bitmap;
 import android.graphics.Point;
 
 import java.io.Serializable;
@@ -26,6 +27,11 @@ public class SegmentData implements Serializable {
     /**
      * Stores the color of the Paint
      */
+
+    private String background;
+
+    private Boolean isBitmap = false;
+
     int color;
     /**
      * Stores the size of the Brush
@@ -105,6 +111,9 @@ public class SegmentData implements Serializable {
      */
     public void reset(){
         points.clear();
+        setIsErase(false);
+        setIsBitmap(false);
+        setBackground(null);
     }
 
     /**
@@ -147,4 +156,19 @@ public class SegmentData implements Serializable {
         SizeOrigin = sizeOrigin;
     }
 
+    public String getBackground() {
+        return background;
+    }
+
+    public void setBackground(String background) {
+        this.background = background;
+    }
+
+    public Boolean getIsBitmap() {
+        return isBitmap;
+    }
+
+    public void setIsBitmap(Boolean isBitmap) {
+        this.isBitmap = isBitmap;
+    }
 }

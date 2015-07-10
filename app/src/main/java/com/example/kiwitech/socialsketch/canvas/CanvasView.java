@@ -3,6 +3,7 @@ import com.example.kiwitech.socialsketch.DataTypes.*;
 import android.content.Context;
 import android.database.sqlite.SQLiteBindOrColumnIndexOutOfRangeException;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -24,6 +25,7 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -71,6 +73,9 @@ public class CanvasView extends View{
      * A Stack to store all interactions that have been undo for redo.
      */
     private Stack<PathObject> redoStack = new Stack<>();
+
+    private Firebase mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
+
 
     /**
      * Stores the color of the drawings
@@ -243,7 +248,6 @@ public class CanvasView extends View{
                     segment.addPoint(touchX, touchY);
                 }
                 if(!MainActivity.getState().equals("localcanvas")) {
-                    Firebase mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
                     Serializer s = new Serializer();
                     String str;
                     if(eraseMode){
@@ -253,7 +257,6 @@ public class CanvasView extends View{
                     }
                     segment.setColor(path_color);
                     segment.setSizeOrigin(new Pair((float) getHeight(), (float) getWidth()));
-                    DisplayMetrics metrics = getResources().getDisplayMetrics();
                     segment.setIsErase(eraseMode);
                     try {
                         byte[] by_new = s.serialize(segment);
@@ -318,7 +321,7 @@ public class CanvasView extends View{
         path_canvas.getPaint().setColor(path_color);
         path_canvas.getPaint().setAlpha(255);
         }
-        path_canvas.getPaint().setStrokeWidth(eraser_size*metrics.density);
+        path_canvas.getPaint().setStrokeWidth(eraser_size * metrics.density);
     }
 
     /**
@@ -437,10 +440,15 @@ public class CanvasView extends View{
     }
 
     public void updateCanvas(String segment) throws IOException, ClassNotFoundException {
-
         Serializer s = new Serializer();
         byte[] by_new =  Base64.decode(segment, 0);
         SegmentData nsegment = (SegmentData) s.deserialize(by_new);
+        if(nsegment.getIsBitmap()){
+            byte[] by_image =  Base64.decode(nsegment.getBackground(),Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(by_image , 0, by_image.length);
+            canvas.drawBitmap(getResizedBitmap(bitmap,getMeasuredHeight(),getMeasuredWidth()), 0, 0, new Paint());
+
+        }else{
         Paint paint = new Paint(path_canvas.getPaint());
         PathObject npath = new PathObject(paint);
         npath.getPaint().setColor(nsegment.getColor());
@@ -487,6 +495,7 @@ public class CanvasView extends View{
             canvas.drawPath(npath.getPath(), npath.getPaint());
             paths.add(npath);
         }
+    }
         invalidate();
     }
 
@@ -496,6 +505,31 @@ public class CanvasView extends View{
 
     public void setBitmap(Bitmap bitmap) {
       canvas.drawBitmap(getResizedBitmap(bitmap,getMeasuredHeight(),getMeasuredWidth()), 0, 0, new Paint());
+        if(!MainActivity.getState().equals("localcanvas")) {
+            segment.setIsBitmap(true);
+            Bitmap bmp = getResizedBitmap(bitmap, 1920, 1080);
+            ByteArrayOutputStream bYtE = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.JPEG, 50, bYtE);
+            bmp.recycle();
+            byte[] byteArray = bYtE.toByteArray();
+            Log.e(TAG,String.valueOf(byteArray.length));
+            String imageFile = Base64.encodeToString(byteArray, Base64.DEFAULT);
+            segment.setBackground(imageFile);
+            Serializer s = new Serializer();
+            String str;
+            try {
+                byte[] by_new = s.serialize(segment);
+                str = Base64.encodeToString(by_new, 0);
+                String keyPush = mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID())
+                        .push().getKey();
+                mFirebaseRef.child("canvas").child(MainActivity.getThisRoomID())
+                        .child(keyPush).child(MainActivity.getThisUserID()).setValue(str);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        segment.reset();
+        invalidate();
     }
 
     public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth)
