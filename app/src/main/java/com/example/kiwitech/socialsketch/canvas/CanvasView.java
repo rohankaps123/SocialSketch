@@ -512,7 +512,6 @@ public class CanvasView extends View{
             bmp.compress(Bitmap.CompressFormat.JPEG, 50, bYtE);
             bmp.recycle();
             byte[] byteArray = bYtE.toByteArray();
-            Log.e(TAG,String.valueOf(byteArray.length));
             String imageFile = Base64.encodeToString(byteArray, Base64.DEFAULT);
             segment.setBackground(imageFile);
             Serializer s = new Serializer();
