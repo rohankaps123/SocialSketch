@@ -13,6 +13,7 @@ import java.util.ArrayList;
  * @since 1.0
  */
 public class SegmentData implements Serializable {
+
     /**
      * Size of the display from where the segment origins
      */

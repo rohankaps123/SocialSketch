@@ -4,8 +4,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteBindOrColumnIndexOutOfRangeException;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
 
 import android.util.Base64;
@@ -299,7 +301,7 @@ public class CanvasView extends View{
             eraseMode = false;
         }
         path_canvas.getPaint().setColor(path_color);
-        path_canvas.getPaint().setStrokeWidth(brush_size*metrics.density);
+        path_canvas.getPaint().setStrokeWidth(brush_size * metrics.density);
     }
 
 
@@ -490,5 +492,24 @@ public class CanvasView extends View{
 
     public Boolean isNewCanvas() {
         return newCanvas;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+      canvas.drawBitmap(getResizedBitmap(bitmap,getMeasuredHeight(),getMeasuredWidth()), 0, 0, new Paint());
+    }
+
+    public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth)
+    {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        // create a matrix for the manipulation
+        Matrix matrix = new Matrix();
+        // resize the bit map
+        matrix.postScale(scaleWidth, scaleHeight);
+        // recreate the new Bitmap
+        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
+        return resizedBitmap;
     }
 }

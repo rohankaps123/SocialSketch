@@ -32,6 +32,7 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -464,11 +465,38 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
 
 
     private void selectImage() {
+        if(getState().equals("localcanvas")){
+            final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle("Add Photo!");
+            builder.setItems(options, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int item) {
+                    if (options[item].equals("Take Photo")) {
+                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        String root = Environment.getExternalStorageDirectory().toString();
+                        File myDir = new File(root + "/SocialSketch/Background");
+                        myDir.mkdirs();
+                        File f = new File(myDir, "temp.jpg");
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
+                        startActivityForResult(intent, 2);
+                    } else if (options[item].equals("Choose from Gallery")) {
+                        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        startActivityForResult(intent, 3);
+
+                    } else if (options[item].equals("Cancel")) {
+                        dialog.dismiss();
+                    }
+                }
+            });
+            builder.show();
+        }else{
         mFirebaseRef.child("rooms").child(MainActivity.getThisRoomID()).child("createdBY")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getValue().toString().equals(MainActivity.getThisUserID())) {
+                        if (dataSnapshot.getValue().toString().equals(MainActivity
+                                .getThisUserID())) {
                             final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
 
                             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -478,7 +506,10 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
                                 public void onClick(DialogInterface dialog, int item) {
                                     if (options[item].equals("Take Photo")) {
                                         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                        File f = new File(android.os.Environment.getExternalStorageDirectory(), "temp.jpg");
+                                        String root = Environment.getExternalStorageDirectory().toString();
+                                        File myDir = new File(root + "/SocialSketch/Background");
+                                        myDir.mkdirs();
+                                        File f = new File(myDir, "temp.jpg");
                                         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
                                         startActivityForResult(intent, 2);
                                     } else if (options[item].equals("Choose from Gallery")) {
@@ -502,6 +533,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
 
                     }
                 });
+        }
 
 
     }
@@ -560,50 +592,44 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
                 login.onActivityResult(requestCode, resultCode, data);
                 }
             else if (requestCode == 2) {
-                File f = new File(Environment.getExternalStorageDirectory().toString());
-                for (File temp : f.listFiles()) {
-                    if (temp.getName().equals("temp.jpg")) {
-                        f = temp;
-                        break;
-                    }
-                }
+                File f = new File(Environment.getExternalStorageDirectory().toString()+"/SocialSketch/Background/temp.jpg");
                 try {
-                    Bitmap bitmap;
-                    BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-                    bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(),
-                            bitmapOptions);
-                    if(bitmap == null){
-                        Log.e(TAG,"is null");
-                    }
-                    String path = android.os.Environment
-                            .getExternalStorageDirectory().toString()
-                            + "/SocialSketch/Background";
-                    f.delete();
+                    FileInputStream streamIn = new FileInputStream(f);
+                    Bitmap bitmap = BitmapFactory.decodeStream(streamIn);
+                    streamIn.close();
+                    CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
+                    CanvasView cview = (CanvasView) canvasF.getView();
+                    cview.setBitmap(bitmap);
                     Random generator = new Random();
                     int n = 10000;
                     n = generator.nextInt(n);
                     String fname = "Image-"+ n +".jpg" ;
-                    File file = new File(path,fname);
-                    try {
-                        FileOutputStream outFile = new FileOutputStream(file);
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outFile);
-                        outFile.flush();
-                        outFile.close();
-                    }  catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    File fnew = new File(Environment.getExternalStorageDirectory().toString()+"/SocialSketch/Background/"+fname);
+                    f.renameTo(fnew);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else if (requestCode == 3) {
                 Uri selectedImage = data.getData();
                 String[] filePath = { MediaStore.Images.Media.DATA };
-                Cursor c = getContentResolver().query(selectedImage,filePath, null, null, null);
+                Cursor c = getContentResolver().query(selectedImage, filePath, null, null, null);
                 c.moveToFirst();
                 int columnIndex = c.getColumnIndex(filePath[0]);
                 String picturePath = c.getString(columnIndex);
                 c.close();
-                Bitmap thumbnail = (BitmapFactory.decodeFile(picturePath));
+                FileInputStream streamIn = null;
+                try {
+                    streamIn = new FileInputStream(picturePath);
+                    Bitmap bitmap = BitmapFactory.decodeStream(streamIn);
+                    streamIn.close();
+                    CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
+                    CanvasView cview = (CanvasView) canvasF.getView();
+                    cview.setBitmap(bitmap);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
