@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.IllegalFormatWidthException;
 import java.util.Stack;
 
 
@@ -504,7 +505,13 @@ public class CanvasView extends View{
     }
 
     public void setBitmap(Bitmap bitmap) {
-      canvas.drawBitmap(getResizedBitmap(bitmap,getMeasuredHeight(),getMeasuredWidth()), 0, 0, new Paint());
+
+        Bitmap newBitmap = getResizedBitmap(bitmap,getMeasuredHeight(),getMeasuredWidth());
+        float xOffset= 0;
+        float yOffset= 0;
+        xOffset = (getMeasuredWidth()-newBitmap.getWidth())/2;
+        yOffset = (getMeasuredHeight()-newBitmap.getHeight())/2;
+        canvas.drawBitmap( newBitmap,xOffset, yOffset, new Paint());
         if(!MainActivity.getState().equals("localcanvas")) {
             segment.setIsBitmap(true);
             Bitmap bmp = getResizedBitmap(bitmap, 1920, 1080);
@@ -540,9 +547,14 @@ public class CanvasView extends View{
         // create a matrix for the manipulation
         Matrix matrix = new Matrix();
         // resize the bit map
-        matrix.postScale(scaleWidth, scaleHeight);
+        if(height*scaleWidth>newHeight){
+            matrix.postScale(scaleHeight, scaleHeight);
+        }
+        else{
+            matrix.postScale(scaleWidth, scaleWidth);
+        }
         // recreate the new Bitmap
-        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
+        Bitmap resizedBitmap = Bitmap.createBitmap(bm,0,0, width, height, matrix, false);
         return resizedBitmap;
     }
 }
