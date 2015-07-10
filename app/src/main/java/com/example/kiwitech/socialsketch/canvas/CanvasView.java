@@ -447,8 +447,12 @@ public class CanvasView extends View{
         if(nsegment.getIsBitmap()){
             byte[] by_image =  Base64.decode(nsegment.getBackground(),Base64.DEFAULT);
             Bitmap bitmap = BitmapFactory.decodeByteArray(by_image , 0, by_image.length);
-            canvas.drawBitmap(getResizedBitmap(bitmap,getMeasuredHeight(),getMeasuredWidth()), 0, 0, new Paint());
-
+            Bitmap newBitmap = getResizedBitmap(bitmap,getMeasuredHeight(),getMeasuredWidth());
+            float xOffset= 0;
+            float yOffset= 0;
+            xOffset = (getMeasuredWidth()-newBitmap.getWidth())/2;
+            yOffset = (getMeasuredHeight()-newBitmap.getHeight())/2;
+            canvas.drawBitmap( newBitmap,xOffset, yOffset, new Paint());
         }else{
         Paint paint = new Paint(path_canvas.getPaint());
         PathObject npath = new PathObject(paint);
@@ -505,7 +509,6 @@ public class CanvasView extends View{
     }
 
     public void setBitmap(Bitmap bitmap) {
-
         Bitmap newBitmap = getResizedBitmap(bitmap,getMeasuredHeight(),getMeasuredWidth());
         float xOffset= 0;
         float yOffset= 0;
