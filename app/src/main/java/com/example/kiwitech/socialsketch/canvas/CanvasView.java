@@ -444,10 +444,11 @@ public class CanvasView extends View{
         Serializer s = new Serializer();
         byte[] by_new =  Base64.decode(segment, 0);
         SegmentData nsegment = (SegmentData) s.deserialize(by_new);
+        String mode = nsegment.getMode();
         if(nsegment.getIsBitmap()){
             byte[] by_image =  Base64.decode(nsegment.getBackground(),Base64.DEFAULT);
             Bitmap bitmap = BitmapFactory.decodeByteArray(by_image , 0, by_image.length);
-            Bitmap newBitmap = getResizedBitmap(bitmap,getMeasuredHeight(),getMeasuredWidth());
+            Bitmap newBitmap = getResizedBitmap(bitmap,getMeasuredHeight(),getMeasuredWidth(),mode);
             float xOffset= 0;
             float yOffset= 0;
             xOffset = (getMeasuredWidth()-newBitmap.getWidth())/2;
@@ -508,8 +509,8 @@ public class CanvasView extends View{
         return newCanvas;
     }
 
-    public void setBitmap(Bitmap bitmap) {
-        Bitmap newBitmap = getResizedBitmap(bitmap,getMeasuredHeight(),getMeasuredWidth());
+    public void setBitmap(Bitmap bitmap, String mode) {
+        Bitmap newBitmap = getResizedBitmap(bitmap,getMeasuredHeight(),getMeasuredWidth(),mode);
         float xOffset= 0;
         float yOffset= 0;
         xOffset = (getMeasuredWidth()-newBitmap.getWidth())/2;
@@ -517,13 +518,14 @@ public class CanvasView extends View{
         canvas.drawBitmap( newBitmap,xOffset, yOffset, new Paint());
         if(!MainActivity.getState().equals("localcanvas")) {
             segment.setIsBitmap(true);
-            Bitmap bmp = getResizedBitmap(bitmap, 1920, 1080);
+            segment.setMode(mode);
+            Bitmap bmp = getResizedBitmap(bitmap, 1024 , 800, "sending");
             ByteArrayOutputStream bYtE = new ByteArrayOutputStream();
-            bmp.compress(Bitmap.CompressFormat.JPEG, 50, bYtE);
+            bmp.compress(Bitmap.CompressFormat.JPEG, 40, bYtE);
             bmp.recycle();
             byte[] byteArray = bYtE.toByteArray();
             String imageFile = Base64.encodeToString(byteArray, Base64.DEFAULT);
-            segment.setBackground(imageFile);
+             segment.setBackground(imageFile);
             Serializer s = new Serializer();
             String str;
             try {
@@ -541,7 +543,7 @@ public class CanvasView extends View{
         invalidate();
     }
 
-    public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth)
+    public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth, String mode)
     {
         int width = bm.getWidth();
         int height = bm.getHeight();
@@ -549,12 +551,17 @@ public class CanvasView extends View{
         float scaleHeight = ((float) newHeight) / height;
         // create a matrix for the manipulation
         Matrix matrix = new Matrix();
-        // resize the bit map
-        if(height*scaleWidth>newHeight){
-            matrix.postScale(scaleHeight, scaleHeight);
+        if(mode.equals("Fit")|| mode.equals("sending")){
+            // resize the bit map
+            if(height*scaleWidth>newHeight){
+                matrix.postScale(scaleHeight, scaleHeight);
+            }
+            else{
+                matrix.postScale(scaleWidth, scaleWidth);
+            }
         }
-        else{
-            matrix.postScale(scaleWidth, scaleWidth);
+        else if(mode.equals("Stretch")){
+            matrix.postScale(scaleWidth,scaleHeight);
         }
         // recreate the new Bitmap
         Bitmap resizedBitmap = Bitmap.createBitmap(bm,0,0, width, height, matrix, false);

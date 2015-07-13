@@ -32,6 +32,7 @@ public class SegmentData implements Serializable {
 
     private Boolean isBitmap = false;
 
+    private String mode;
     int color;
     /**
      * Stores the size of the Brush
@@ -170,5 +171,13 @@ public class SegmentData implements Serializable {
 
     public void setIsBitmap(Boolean isBitmap) {
         this.isBitmap = isBitmap;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 }

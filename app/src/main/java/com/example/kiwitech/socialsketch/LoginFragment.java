@@ -140,7 +140,11 @@ public class LoginFragment extends Fragment implements
         mFirebaseRef.addAuthStateListener(new Firebase.AuthStateListener() {
             @Override
             public void onAuthStateChanged(AuthData authData) {
-                mAuthProgressDialog.hide();
+                if(authData == null){
+                    mAuthProgressDialog.hide();
+                }
+                else{
+                }
                 setAuthenticatedUser(authData);
             }
         });
@@ -291,13 +295,6 @@ public class LoginFragment extends Fragment implements
         if (authData !=null){
             mAuthData = authData;
             setUserIDOnlineDB(authData.getProviderData().get("email").toString());
-            Toast.makeText(getActivity(), "Successfully logged in", Toast.LENGTH_SHORT).show();
-            getActivity().getActionBar().show();
-            getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
-            ChooseRoomFragment roomchooser = new ChooseRoomFragment();
-            MainActivity.setState("chooseRoom");
-            getFragmentManager().beginTransaction().replace(R.id.main_window, roomchooser, "Choose Room").commit();
-            getActivity().invalidateOptionsMenu();
         }
         else{
             return;
@@ -316,6 +313,14 @@ public class LoginFragment extends Fragment implements
                             for(DataSnapshot child : querySnapshot.getChildren()){
                                 MainActivity.setThisUserID(child.getKey());
                                 mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("online").setValue(true);
+                                mAuthProgressDialog.hide();
+                                Toast.makeText(getActivity(), "Successfully logged in", Toast.LENGTH_SHORT).show();
+                                getActivity().getActionBar().show();
+                                getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
+                                ChooseRoomFragment roomchooser = new ChooseRoomFragment();
+                                MainActivity.setState("chooseRoom");
+                                getFragmentManager().beginTransaction().replace(R.id.main_window, roomchooser, "Choose Room").commit();
+                                getActivity().invalidateOptionsMenu();
                             }
                         }
                         else{
@@ -352,7 +357,6 @@ public class LoginFragment extends Fragment implements
 
         @Override
         public void onAuthenticated(AuthData authData) {
-            mAuthProgressDialog.hide();
             Log.i(TAG, provider + " auth successful");
             AddUserIfNotExist(authData);
             setAuthenticatedUser(authData);

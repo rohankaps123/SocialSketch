@@ -170,7 +170,6 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         h = new Handler(MainActivity.this.getMainLooper());
         mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
         MainActivity.setState("login");
-        getFragmentManager().beginTransaction().replace(R.id.main_window,login , "Login").commit();
         Button addFriend = (Button) findViewById(R.id.choose_friends_button);
         Button messaging = (Button) findViewById(R.id.chat_room_button);
         messaging.setOnClickListener(ButtonHandler);
@@ -468,7 +467,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         if(getState().equals("localcanvas")){
             final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle("Add Photo!");
+            builder.setTitle("Add Background!");
             builder.setItems(options, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int item) {
@@ -500,7 +499,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
                             final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
 
                             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                            builder.setTitle("Add Photo!");
+                            builder.setTitle("Add Background!");
                             builder.setItems(options, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int item) {
@@ -592,14 +591,29 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
                 login.onActivityResult(requestCode, resultCode, data);
                 }
             else if (requestCode == 2) {
+
                 File f = new File(Environment.getExternalStorageDirectory().toString()+"/SocialSketch/Background/temp.jpg");
                 try {
                     FileInputStream streamIn = new FileInputStream(f);
-                    Bitmap bitmap = BitmapFactory.decodeStream(streamIn);
+                    final Bitmap bitmap = BitmapFactory.decodeStream(streamIn);
                     streamIn.close();
                     CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
-                    CanvasView cview = (CanvasView) canvasF.getView();
-                    cview.setBitmap(bitmap);
+                    final CanvasView cview = (CanvasView) canvasF.getView();
+                    final CharSequence[] options = {"Fit", "Stretch"};
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Choose Image Mode");
+                    builder.setItems(options, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int item) {
+                            if (options[item].equals("Fit")) {
+                                cview.setBitmap(bitmap, "Fit");
+
+                            } else if (options[item].equals("Stretch")) {
+                                cview.setBitmap(bitmap, "Stretch");
+                            }
+                        }
+                    });
+                    builder.show();
                     Random generator = new Random();
                     int n = 10000;
                     n = generator.nextInt(n);
@@ -620,11 +634,26 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
                 FileInputStream streamIn = null;
                 try {
                     streamIn = new FileInputStream(picturePath);
-                    Bitmap bitmap = BitmapFactory.decodeStream(streamIn);
+                    final Bitmap bitmapgal = BitmapFactory.decodeStream(streamIn);
                     streamIn.close();
                     CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
-                    CanvasView cview = (CanvasView) canvasF.getView();
-                    cview.setBitmap(bitmap);
+                    final CanvasView cview = (CanvasView) canvasF.getView();
+                    final CharSequence[] options = {"Fit", "Stretch"};
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Choose Image Mode");
+                    builder.setItems(options, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int item) {
+                            if (options[item].equals("Fit")) {
+                                cview.setBitmap(bitmapgal, "Fit");
+
+                            } else if (options[item].equals("Stretch")) {
+                                cview.setBitmap(bitmapgal, "Stretch");
+
+                            }
+                        }
+                    });
+                    builder.show();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {

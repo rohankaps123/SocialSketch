@@ -260,7 +260,8 @@ public class CanvasFragment extends Fragment {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        if(MainActivity.getState().equals("canvas")&& mFirebaseRef!=null){
+        if((MainActivity.getState().equals("canvas")|| MainActivity.getState().equals("localcanvas"))&& mFirebaseRef!=null){
+            MainActivity.setState("chooseRoom");
             removeNewSegmentListener();
         }
     }
