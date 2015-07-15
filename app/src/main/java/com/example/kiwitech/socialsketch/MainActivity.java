@@ -30,6 +30,7 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.pushbots.push.Pushbots;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,6 +56,8 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         ChooseFriendFragment.ChooseFriendFragmentListener,
         ChooseRoomFragment.ChooseRoomFragmentListener {
     private static ArrayList<String> roomMembersNames = new ArrayList<>();
+
+    private static String projectNumber = "133370271597";
     // Handler for threads running on the main activity
     private Handler h;
     //Tag for writing errors
@@ -165,10 +168,12 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Firebase.getDefaultConfig().setPersistenceEnabled(true);
         Firebase.setAndroidContext(this);
         setContentView(R.layout.activity_main);
         h = new Handler(MainActivity.this.getMainLooper());
         mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
+        Pushbots.sharedInstance().init(this);
         MainActivity.setState("login");
         Button addFriend = (Button) findViewById(R.id.choose_friends_button);
         Button messaging = (Button) findViewById(R.id.chat_room_button);
@@ -186,7 +191,6 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
                 invalidateOptionsMenu();
             }else if(getState().equals("chat")){
                 MainActivity.setState("canvas");
-
                 getActionBar().setDisplayHomeAsUpEnabled(false);
                 invalidateOptionsMenu();
             }
@@ -711,7 +715,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         if(local)
             MainActivity.setState("localcanvas");
         else
-            MainActivity.setState("canvas");
+        MainActivity.setState("canvas");
 
         //If local set the room id and name as "" and setup the local canvas
         if (local){

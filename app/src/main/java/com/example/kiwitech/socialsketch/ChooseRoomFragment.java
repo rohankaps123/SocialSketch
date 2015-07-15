@@ -25,6 +25,8 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.pushbots.push.Pushbots;
+
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -208,6 +210,7 @@ public class ChooseRoomFragment extends Fragment {
         Firebase roomsRef = mFirebaseRef.child("rooms");
         String newRoomKey = roomsRef.push().getKey();
         roomsRef.child(newRoomKey).setValue(newRoom);
+        Pushbots.sharedInstance().tag(newRoomKey);
         mFirebaseRef.child("members").child(newRoomKey).child(MainActivity.getThisUserID()).setValue(false);
         Toast.makeText(getActivity(), "Successfully created a new Room", Toast.LENGTH_SHORT).show();
     }
@@ -246,11 +249,11 @@ public class ChooseRoomFragment extends Fragment {
                                 }
                             }
                             if (!memberOnline){
-                            mFirebaseRef.child("rooms").child(roomIDlist.get(position)).setValue(null);
+                                Pushbots.sharedInstance().untag(roomIDlist.get(position));
+                                mFirebaseRef.child("rooms").child(roomIDlist.get(position)).setValue(null);
                             mFirebaseRef.child("members").child(roomIDlist.get(position)).setValue(null);
                             mFirebaseRef.child("canvas").child(roomIDlist.get(position)).setValue(null);
                                 mFirebaseRef.child("messages").child(roomIDlist.get(position)).setValue(null);
-
                                 Toast.makeText(getActivity(), "Successfully deleted the Room", Toast.LENGTH_SHORT).show();
                             }
                             else{

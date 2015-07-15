@@ -32,4 +32,6 @@ dependencies {
     compile project(':color-picker-view')
     compile 'com.google.android.gms:play-services:7.3.0'
     compile 'com.firebase:firebase-client-android:2.3.0+'
+    compile 'com.pushbots:pushbots-lib:2.0.13@aar'
+    compile 'com.google.code.gson:gson:2.3.1'
 }

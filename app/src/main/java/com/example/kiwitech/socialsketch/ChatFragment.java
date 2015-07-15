@@ -25,8 +25,19 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import java.util.ArrayList;
+import com.google.gson.GsonBuilder;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -200,8 +211,45 @@ public class ChatFragment extends Fragment {
     private void sendMessage(){
         EditText message = (EditText) getView().findViewById(R.id.chat_fragment_message_edittext);
         String keyPush = mFirebaseRef.child("messages").child(MainActivity.getThisRoomID()).push().getKey();
+        postChat("New message in" + MainActivity.getThisRoomName()+ " : " + message.getText()
+                .toString(),MainActivity.getThisRoomID());
         mFirebaseRef.child("messages").child(MainActivity.getThisRoomID())
                 .child(keyPush).child(MainActivity.getThisUserID()).setValue(message.getText().toString());
+        message.setText("");
     }
+
+
+    public void postChat(final String message, final String tag) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, String> messageData = new HashMap<String, String>();
+                messageData.put("platform", "1");
+                messageData.put("tags", tag);
+                //messageData.put("except_alias",MainActivity.getThisUserID());
+                messageData.put("msg", message);
+                String json = new GsonBuilder().create().toJson(messageData, Map.class);
+                // Create a new HttpClient and Post Header
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpPost httppost = new HttpPost("https://api.pushbots.com/push/all");
+
+                try {
+                    httppost.addHeader("x-pushbots-appid", "55a616cb1779595f718b4567");
+                    httppost.addHeader("x-pushbots-secret", "b4cd0c3abba32b1f764002e47b410f7e");
+                    httppost.addHeader("Content-Type", "application/json");
+                    httppost.setEntity(new StringEntity(json));
+
+                    // Execute HTTP Post Request
+                    HttpResponse response = httpclient.execute(httppost);
+
+                } catch (ClientProtocolException e) {
+                    // TODO Auto-generated catch block
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                }
+            }
+        }).start();
+    }
+
 
 }

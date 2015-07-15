@@ -24,8 +24,28 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import java.util.ArrayList;
+import com.google.gson.GsonBuilder;
+import com.pushbots.push.Pushbots;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 
 /**
@@ -131,10 +151,14 @@ public class ChooseFriendFragment extends Fragment {
                 //Remove as a member if it was checked and add as a member if it was unchecked
                 if(added_check.isChecked()){
                     added_check.setChecked(false);
+                    untag(MainActivity.getThisRoomID(),friendslist.get(position));
+                    postData(MainActivity.getThisUserID() + " Removed you from the group" + MainActivity.getThisRoomName(), friendslist.get(position));
                     mListener.ChooseFriendFragmentInteraction("remove", friendslist.get(position), friendslistemail.get(position));
                 }
                 else{
                     added_check.setChecked(true);
+                    postData(MainActivity.getThisUserID() + " added you to the group" + MainActivity.getThisRoomName(), friendslist.get(position));
+                    tag(MainActivity.getThisRoomID(), friendslist.get(position));
                     mListener.ChooseFriendFragmentInteraction("add",friendslist.get(position), friendslistemail.get(position));
                 }
             }
@@ -233,8 +257,8 @@ public class ChooseFriendFragment extends Fragment {
                             /*Add the Query result (USERID associated with the email) into the database in the friends field.
                             If the user does not exist in the list already.
                             */
-                            for (DataSnapshot child : querySnapshot.getChildren()) {
-                                    if (!checkIfFriendExists(child.getKey())){
+                            for (final DataSnapshot child : querySnapshot.getChildren()) {
+                                if (!checkIfFriendExists(child.getKey())) {
                                     mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("friends").child(child.getKey())
                                             .setValue(searchstr,
                                                     new Firebase.CompletionListener() {
@@ -243,14 +267,14 @@ public class ChooseFriendFragment extends Fragment {
                                                             if (firebaseError != null) {
                                                                 Log.e(TAG, firebaseError.getMessage().toString());
                                                             } else {
+                                                                postData(MainActivity.getThisUserID() + " added you as a friend", child.getKey());
                                                                 Toast.makeText(getActivity(), "The User was added to your friend list", Toast.LENGTH_SHORT).show();
                                                             }
                                                         }
                                                     });
-                                    }
-                                    else{
-                                        Toast.makeText(getActivity(), "The User is already your friend", Toast.LENGTH_SHORT).show();
-                                    }
+                                } else {
+                                    Toast.makeText(getActivity(), "The User is already your friend", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         }
                     }
@@ -261,6 +285,100 @@ public class ChooseFriendFragment extends Fragment {
                 });
     }
 
+
+    public void postData(final String message, final String target) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, String> messageData = new HashMap<String, String>();
+                messageData.put("platform", "1");
+                messageData.put("alias", target);
+                messageData.put("msg", message);
+                String json = new GsonBuilder().create().toJson(messageData, Map.class);
+        // Create a new HttpClient and Post Header
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpPost httppost = new HttpPost("https://api.pushbots.com/push/all");
+
+        try {
+            httppost.addHeader("x-pushbots-appid", "55a616cb1779595f718b4567");
+            httppost.addHeader("x-pushbots-secret", "b4cd0c3abba32b1f764002e47b410f7e");
+            httppost.addHeader("Content-Type", "application/json");
+            httppost.setEntity(new StringEntity(json));
+
+            // Execute HTTP Post Request
+            HttpResponse response = httpclient.execute(httppost);
+
+        } catch (ClientProtocolException e) {
+            // TODO Auto-generated catch block
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+        }
+            }
+        }).start();
+    }
+
+
+
+    public void untag(final String tag, final String target) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, String> messageData = new HashMap<String, String>();
+                messageData.put("platform", "1");
+                messageData.put("tag", tag);
+                messageData.put("alias", target);
+                String json = new GsonBuilder().create().toJson(messageData, Map.class);
+                // Create a new HttpClient and Post Header
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpPut httpput = new HttpPut("https://api.pushbots.com/tag/del");
+
+                try {
+                    httpput.addHeader("x-pushbots-appid", "55a616cb1779595f718b4567");
+                    httpput.addHeader("x-pushbots-secret", "b4cd0c3abba32b1f764002e47b410f7e");
+                    httpput.addHeader("Content-Type", "application/json");
+                    httpput.setEntity(new StringEntity(json));
+
+                    // Execute HTTP Post Request
+                    HttpResponse response = httpclient.execute(httpput);
+
+                } catch (ClientProtocolException e) {
+                    // TODO Auto-generated catch block
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                }
+            }
+        }).start();
+    }
+    public void tag(final String tag, final String target) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, String> messageData = new HashMap<String, String>();
+                messageData.put("platform", "1");
+                messageData.put("tag", tag);
+                messageData.put("alias", target);
+                String json = new GsonBuilder().create().toJson(messageData, Map.class);
+                // Create a new HttpClient and Post Header
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpPut httpput = new HttpPut("https://api.pushbots.com/tag");
+
+                try {
+                    httpput.addHeader("x-pushbots-appid", "55a616cb1779595f718b4567");
+                    httpput.addHeader("x-pushbots-secret", "b4cd0c3abba32b1f764002e47b410f7e");
+                    httpput.addHeader("Content-Type", "application/json");
+                    httpput.setEntity(new StringEntity(json));
+
+                    // Execute HTTP Post Request
+                    HttpResponse response = httpclient.execute(httpput);
+
+                } catch (ClientProtocolException e) {
+                    // TODO Auto-generated catch block
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                }
+            }
+        }).start();
+    }
     /**
      * Check if the user exists in the friends list already
      * @param ID Takes in the USERID of the user

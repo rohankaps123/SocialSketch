@@ -41,6 +41,7 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
+import com.pushbots.push.Pushbots;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -208,6 +209,7 @@ public class LoginFragment extends Fragment implements
             /* Update authenticated user and show login buttons */
             setAuthenticatedUser(null);
             MainActivity.setState("login");
+            Pushbots.sharedInstance().setAlias("no");
             setUserOfflineDB();
 
         }
@@ -315,6 +317,7 @@ public class LoginFragment extends Fragment implements
                                 mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("online").setValue(true);
                                 mAuthProgressDialog.hide();
                                 Toast.makeText(getActivity(), "Successfully logged in", Toast.LENGTH_SHORT).show();
+                                Pushbots.sharedInstance().setAlias(MainActivity.getThisUserID());
                                 getActivity().getActionBar().show();
                                 getActivity().getFragmentManager().beginTransaction().remove(thisFragment).commit();
                                 ChooseRoomFragment roomchooser = new ChooseRoomFragment();
