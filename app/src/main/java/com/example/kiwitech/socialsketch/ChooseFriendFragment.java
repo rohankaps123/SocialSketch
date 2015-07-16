@@ -152,12 +152,12 @@ public class ChooseFriendFragment extends Fragment {
                 if(added_check.isChecked()){
                     added_check.setChecked(false);
                     untag(MainActivity.getThisRoomID(),friendslist.get(position));
-                    postData(MainActivity.getThisUserID() + " Removed you from the group" + MainActivity.getThisRoomName(), friendslist.get(position));
+                    postData(MainActivity.getThisUserName() + " Removed you from the group " + MainActivity.getThisRoomName(), friendslist.get(position));
                     mListener.ChooseFriendFragmentInteraction("remove", friendslist.get(position), friendslistemail.get(position));
                 }
                 else{
                     added_check.setChecked(true);
-                    postData(MainActivity.getThisUserID() + " added you to the group" + MainActivity.getThisRoomName(), friendslist.get(position));
+                    postData(MainActivity.getThisUserName() + " added you to the group " + MainActivity.getThisRoomName(), friendslist.get(position));
                     tag(MainActivity.getThisRoomID(), friendslist.get(position));
                     mListener.ChooseFriendFragmentInteraction("add",friendslist.get(position), friendslistemail.get(position));
                 }
@@ -267,7 +267,7 @@ public class ChooseFriendFragment extends Fragment {
                                                             if (firebaseError != null) {
                                                                 Log.e(TAG, firebaseError.getMessage().toString());
                                                             } else {
-                                                                postData(MainActivity.getThisUserID() + " added you as a friend", child.getKey());
+                                                                postData(MainActivity.getThisUserName() + " added you as a friend", child.getKey());
                                                                 Toast.makeText(getActivity(), "The User was added to your friend list", Toast.LENGTH_SHORT).show();
                                                             }
                                                         }

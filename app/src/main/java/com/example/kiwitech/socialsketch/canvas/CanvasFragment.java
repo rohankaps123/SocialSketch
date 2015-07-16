@@ -30,10 +30,19 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.gson.GsonBuilder;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Stack;
@@ -59,6 +68,8 @@ public class CanvasFragment extends Fragment {
     private ChildEventListener newSegment;
 
     private ChildEventListener friendStatus;
+
+    private Boolean sentNotif = false;
 
     /**
      * Saves data for each segment and can be used to send to other users.
@@ -91,6 +102,7 @@ public class CanvasFragment extends Fragment {
                     }
                     CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
                     CanvasView cview = (CanvasView) canvasF.getView();
+
                     if(cview.isNewCanvas()){
                         try {
                             cview.updateCanvas(str);
@@ -101,13 +113,17 @@ public class CanvasFragment extends Fragment {
                         }
                     }
                     else if(!key.equals(MainActivity.getThisUserID())){
-                     try {
+                        try {
                          cview.updateCanvas(str);
                      } catch (IOException e) {
                          e.printStackTrace();
                      } catch (ClassNotFoundException e) {
                          e.printStackTrace();
                         }
+                    }else{ if(!sentNotif && !MainActivity.getState().equals("localcanvas")){
+                        sentNotif = true;
+                        postNotifDrawing("Somebody drew in the room " +MainActivity.getThisRoomName(),MainActivity.getThisRoomID());
+                    }
                     }
                 }
             }
@@ -190,6 +206,38 @@ public class CanvasFragment extends Fragment {
             }
         };
         mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).addChildEventListener(friendStatus);
+    }
+
+    public void postNotifDrawing(final String message, final String tag) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, String> messageData = new HashMap<String, String>();
+                messageData.put("platform", "1");
+                messageData.put("tags", tag);
+                messageData.put("except_alias",MainActivity.getThisUserID());
+                messageData.put("msg", message);
+                String json = new GsonBuilder().create().toJson(messageData, Map.class);
+                // Create a new HttpClient and Post Header
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpPost httppost = new HttpPost("https://api.pushbots.com/push/all");
+
+                try {
+                    httppost.addHeader("x-pushbots-appid", "55a616cb1779595f718b4567");
+                    httppost.addHeader("x-pushbots-secret", "b4cd0c3abba32b1f764002e47b410f7e");
+                    httppost.addHeader("Content-Type", "application/json");
+                    httppost.setEntity(new StringEntity(json));
+
+                    // Execute HTTP Post Request
+                    HttpResponse response = httpclient.execute(httppost);
+
+                } catch (ClientProtocolException e) {
+                    // TODO Auto-generated catch block
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                }
+            }
+        }).start();
     }
 
     public void removeNewSegmentListener(){

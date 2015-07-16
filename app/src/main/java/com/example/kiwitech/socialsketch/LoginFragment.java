@@ -208,6 +208,7 @@ public class LoginFragment extends Fragment implements
             }
             /* Update authenticated user and show login buttons */
             setAuthenticatedUser(null);
+            MainActivity.setThisUserName("");
             MainActivity.setState("login");
             Pushbots.sharedInstance().setAlias("no");
             setUserOfflineDB();
@@ -306,7 +307,7 @@ public class LoginFragment extends Fragment implements
 
 
 
-    private void setUserIDOnlineDB(String email) {
+    private void setUserIDOnlineDB(final String email) {
         mFirebaseRef.child("users").orderByChild("email").equalTo(email)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -314,6 +315,7 @@ public class LoginFragment extends Fragment implements
                         if(querySnapshot.getChildrenCount() != 0){
                             for(DataSnapshot child : querySnapshot.getChildren()){
                                 MainActivity.setThisUserID(child.getKey());
+                                MainActivity.setThisUserName(email);
                                 mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("online").setValue(true);
                                 mAuthProgressDialog.hide();
                                 Toast.makeText(getActivity(), "Successfully logged in", Toast.LENGTH_SHORT).show();

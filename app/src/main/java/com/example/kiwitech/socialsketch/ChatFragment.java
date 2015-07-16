@@ -211,8 +211,7 @@ public class ChatFragment extends Fragment {
     private void sendMessage(){
         EditText message = (EditText) getView().findViewById(R.id.chat_fragment_message_edittext);
         String keyPush = mFirebaseRef.child("messages").child(MainActivity.getThisRoomID()).push().getKey();
-        postChat("New message in" + MainActivity.getThisRoomName()+ " : " + message.getText()
-                .toString(),MainActivity.getThisRoomID());
+        postChat("New message in " + MainActivity.getThisRoomName(),MainActivity.getThisRoomID());
         mFirebaseRef.child("messages").child(MainActivity.getThisRoomID())
                 .child(keyPush).child(MainActivity.getThisUserID()).setValue(message.getText().toString());
         message.setText("");
@@ -226,7 +225,7 @@ public class ChatFragment extends Fragment {
                 Map<String, String> messageData = new HashMap<String, String>();
                 messageData.put("platform", "1");
                 messageData.put("tags", tag);
-                //messageData.put("except_alias",MainActivity.getThisUserID());
+                messageData.put("except_alias",MainActivity.getThisUserID());
                 messageData.put("msg", message);
                 String json = new GsonBuilder().create().toJson(messageData, Map.class);
                 // Create a new HttpClient and Post Header

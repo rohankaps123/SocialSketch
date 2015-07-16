@@ -1,6 +1,7 @@
 package com.example.kiwitech.socialsketch;
 
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -78,6 +79,8 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
      * Current User's ID
      */
     private static String thisUserID = "";
+
+    private static String thisUserName = "";
     /**
      * Current Rooms's ID
      */
@@ -164,6 +167,14 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         return state;
     }
 
+    public static String getThisUserName() {
+        return thisUserName;
+    }
+
+    public static void setThisUserName(String thisUserName) {
+        MainActivity.thisUserName = thisUserName;
+    }
+
     // on create displays the main activity xml
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,6 +182,11 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         //Firebase.getDefaultConfig().setPersistenceEnabled(true);
         Firebase.setAndroidContext(this);
         setContentView(R.layout.activity_main);
+        ActionBar actionBar = getActionBar();
+        actionBar.setLogo(R.drawable.ic_launcher);
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayUseLogoEnabled(true);
+        actionBar.setTitle("  Social Sketch");
         h = new Handler(MainActivity.this.getMainLooper());
         mFirebaseRef = new Firebase("https://socialsketch.firebaseio.com");
         Pushbots.sharedInstance().init(this);
