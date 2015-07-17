@@ -25,9 +25,20 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.gson.GsonBuilder;
 import com.pushbots.push.Pushbots;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -162,7 +173,6 @@ public class ChooseRoomFragment extends Fragment {
     public void onRoomSelected(int position){
         getActivity().invalidateOptionsMenu();
         mListener.ChooseRoomFragmentInteraction(roomIDlist.get(position), roomnamelist.get(position), false);
-
     }
     @Override
     public void onPause(){
@@ -249,7 +259,9 @@ public class ChooseRoomFragment extends Fragment {
                                 }
                             }
                             if (!memberOnline){
-                                Pushbots.sharedInstance().untag(roomIDlist.get(position));
+                                for(DataSnapshot child : dataSnapshot.getChildren()){
+                                    removeTagForRoom(child.getKey(),roomIDlist.get(position));
+                                }
                                 mFirebaseRef.child("rooms").child(roomIDlist.get(position)).setValue(null);
                             mFirebaseRef.child("members").child(roomIDlist.get(position)).setValue(null);
                             mFirebaseRef.child("canvas").child(roomIDlist.get(position)).setValue(null);
@@ -279,6 +291,37 @@ public class ChooseRoomFragment extends Fragment {
             }
         });
 
+    }
+
+    private void removeTagForRoom(final String alias , final String tag) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, String> messageData = new HashMap<String, String>();
+                messageData.put("platform", "1");
+                messageData.put("tag", tag);
+                messageData.put("alias",alias);
+                String json = new GsonBuilder().create().toJson(messageData, Map.class);
+                // Create a new HttpClient and Post Header
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpPut httpput = new HttpPut("https://api.pushbots.com/tag/del");
+
+                try {
+                    httpput.addHeader("x-pushbots-appid", "55a616cb1779595f718b4567");
+                    httpput.addHeader("x-pushbots-secret", "b4cd0c3abba32b1f764002e47b410f7e");
+                    httpput.addHeader("Content-Type", "application/json");
+                    httpput.setEntity(new StringEntity(json));
+
+                    // Execute HTTP Post Request
+                    HttpResponse response = httpclient.execute(httpput);
+
+                } catch (ClientProtocolException e) {
+                    // TODO Auto-generated catch block
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                }
+            }
+        }).start();
     }
 
 

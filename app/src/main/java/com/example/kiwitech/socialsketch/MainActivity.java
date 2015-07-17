@@ -204,6 +204,7 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         if (getFragmentManager().getBackStackEntryCount() > 0) {
             if(getState().equals("friends")){
                 MainActivity.setState("canvas");
+                getActionBar().setDisplayHomeAsUpEnabled(false);
                 invalidateOptionsMenu();
             }else if(getState().equals("chat")){
                 MainActivity.setState("canvas");
@@ -348,13 +349,13 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             if(nchat == null){
                 nchat = new ChatFragment();
             }
-            getFragmentManager().beginTransaction().replace(R.id.main_window, nchat, "chat").addToBackStack("Main activity").commit();
+            getFragmentManager().beginTransaction().replace(R.id.main_window, nchat, "chat").commit();
         }
         else if(state.equals("friends")){
             if(nfadd == null){
                 nfadd = new ChooseFriendFragment();
             }
-            getFragmentManager().beginTransaction().replace(R.id.main_window, nfadd, "Choose friends").addToBackStack("Main activity").commit();
+            getFragmentManager().beginTransaction().replace(R.id.main_window, nfadd, "Choose friends").commit();
         }
         else if(state.equals("localcanvas")){
             setLocalCanvas();
