@@ -417,7 +417,8 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
             //logout user when ever logout is selected and bring up the login fragment
             login.logout();
             CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
-            CanvasView cview = (CanvasView) canvasF.getView();
+                canvasF.removeNewSegmentListener();
+                CanvasView cview = (CanvasView) canvasF.getView();
             cview.clearCanvas();
             Toast.makeText(this, "Successfully logged out", Toast.LENGTH_SHORT).show();
 
