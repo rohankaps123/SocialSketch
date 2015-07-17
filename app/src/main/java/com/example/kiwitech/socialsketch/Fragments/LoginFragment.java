@@ -1,22 +1,16 @@
-package com.example.kiwitech.socialsketch;
+package com.example.kiwitech.socialsketch.Fragments;
 
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -25,12 +19,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.kiwitech.socialsketch.DataTypes.SSUser;
+import com.example.kiwitech.socialsketch.MainActivity;
+import com.example.kiwitech.socialsketch.R;
 import com.firebase.client.AuthData;
-import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -44,7 +38,6 @@ import com.google.android.gms.plus.Plus;
 import com.pushbots.push.Pushbots;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

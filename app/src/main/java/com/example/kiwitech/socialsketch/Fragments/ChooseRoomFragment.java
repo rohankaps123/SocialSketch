@@ -1,25 +1,22 @@
-package com.example.kiwitech.socialsketch;
+package com.example.kiwitech.socialsketch.Fragments;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.kiwitech.socialsketch.DataTypes.ChooseFriendsArrayAdapter;
 import com.example.kiwitech.socialsketch.DataTypes.ChooseRoomArrayAdapter;
 import com.example.kiwitech.socialsketch.DataTypes.SSRoom;
-import com.example.kiwitech.socialsketch.canvas.CanvasFragment;
+import com.example.kiwitech.socialsketch.MainActivity;
+import com.example.kiwitech.socialsketch.R;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -31,7 +28,6 @@ import com.pushbots.push.Pushbots;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -216,7 +212,7 @@ public class ChooseRoomFragment extends Fragment {
      * Add the user as a friend to the database using emai ID
      */
     private void addRoom(){
-        SSRoom newRoom = new SSRoom(newRoomName.getText().toString(),MainActivity.getThisUserID());
+        SSRoom newRoom = new SSRoom(newRoomName.getText().toString(), MainActivity.getThisUserID());
         Firebase roomsRef = mFirebaseRef.child("rooms");
         String newRoomKey = roomsRef.push().getKey();
         roomsRef.child(newRoomKey).setValue(newRoom);

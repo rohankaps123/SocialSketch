@@ -9,8 +9,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.kiwitech.socialsketch.ChatFragment;
-import com.example.kiwitech.socialsketch.ChooseRoomFragment;
 import com.example.kiwitech.socialsketch.MainActivity;
 import com.example.kiwitech.socialsketch.R;
 

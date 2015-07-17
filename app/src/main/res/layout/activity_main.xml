@@ -41,7 +41,7 @@
                     android:layout_gravity="center_horizontal" />
             </LinearLayout>
             <fragment
-                android:name="com.example.kiwitech.socialsketch.canvas.CanvasFragment"
+                android:name="com.example.kiwitech.socialsketch.Fragments.CanvasFragment"
                 tools:context="com.example.kiwitech.socialsketch.MainActivity"
                 android:id="@+id/Canvas_Fragment"
                 android:layout_width="match_parent"

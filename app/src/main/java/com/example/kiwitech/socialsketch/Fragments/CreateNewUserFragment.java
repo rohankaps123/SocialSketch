@@ -1,4 +1,4 @@
-package com.example.kiwitech.socialsketch;
+package com.example.kiwitech.socialsketch.Fragments;
 
 
 import android.app.ProgressDialog;
@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 import com.example.kiwitech.socialsketch.DataTypes.Pair;
 import com.example.kiwitech.socialsketch.DataTypes.SSUser;
+import com.example.kiwitech.socialsketch.MainActivity;
+import com.example.kiwitech.socialsketch.R;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 

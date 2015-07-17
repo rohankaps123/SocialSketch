@@ -1,4 +1,4 @@
-package com.example.kiwitech.socialsketch.canvas;
+package com.example.kiwitech.socialsketch.Fragments;
 
 
 import android.app.Dialog;
@@ -10,8 +10,6 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.os.Environment;
 import android.os.Handler;
-import android.util.Base64;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,9 +20,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kiwitech.socialsketch.DataTypes.SegmentData;
-import com.example.kiwitech.socialsketch.DataTypes.Serializer;
 import com.example.kiwitech.socialsketch.MainActivity;
 import com.example.kiwitech.socialsketch.R;
+import com.example.kiwitech.socialsketch.Views.CanvasView;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -45,7 +43,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Stack;
 
 import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
 

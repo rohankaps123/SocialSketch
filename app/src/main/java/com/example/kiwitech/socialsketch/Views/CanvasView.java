@@ -1,36 +1,24 @@
-package com.example.kiwitech.socialsketch.canvas;
+package com.example.kiwitech.socialsketch.Views;
 import com.example.kiwitech.socialsketch.DataTypes.*;
 import android.content.Context;
-import android.database.sqlite.SQLiteBindOrColumnIndexOutOfRangeException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
 
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import com.example.kiwitech.socialsketch.DataTypes.PathObject;
 import com.example.kiwitech.socialsketch.MainActivity;
-import com.example.kiwitech.socialsketch.R;
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.IllegalFormatWidthException;
 import java.util.Stack;
 
 
