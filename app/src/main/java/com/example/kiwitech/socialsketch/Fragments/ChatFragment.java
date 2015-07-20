@@ -20,6 +20,7 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import org.apache.http.HttpResponse;
@@ -28,11 +29,13 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -217,11 +220,12 @@ public class ChatFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Map<String, String> messageData = new HashMap<String, String>();
+                Map<String, Object> messageData = new HashMap<String, Object>();
                 messageData.put("platform", "1");
-                messageData.put("tags", tag);
+                messageData.put("tags",new String[]{tag});
                 messageData.put("except_alias",MainActivity.getThisUserID());
                 messageData.put("msg", message);
+
                 String json = new GsonBuilder().create().toJson(messageData, Map.class);
                 // Create a new HttpClient and Post Header
                 HttpClient httpclient = new DefaultHttpClient();

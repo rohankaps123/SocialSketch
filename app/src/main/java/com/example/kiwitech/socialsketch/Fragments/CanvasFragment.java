@@ -42,6 +42,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 
 import afzkl.development.colorpickerview.dialog.ColorPickerDialogFragment;
@@ -209,9 +210,9 @@ public class CanvasFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Map<String, String> messageData = new HashMap<String, String>();
+                Map<String, Object> messageData = new HashMap<String, Object>();
                 messageData.put("platform", "1");
-                messageData.put("tags", tag);
+                messageData.put("tags", new String[]{tag});
                 messageData.put("except_alias",MainActivity.getThisUserID());
                 messageData.put("msg", message);
                 String json = new GsonBuilder().create().toJson(messageData, Map.class);
