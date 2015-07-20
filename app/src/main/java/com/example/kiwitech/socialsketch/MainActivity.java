@@ -28,7 +28,7 @@ import com.example.kiwitech.socialsketch.Fragments.CanvasFragment;
 import com.example.kiwitech.socialsketch.Fragments.CreateNewUserFragment;
 import com.example.kiwitech.socialsketch.Fragments.LoginFragment;
 import com.example.kiwitech.socialsketch.Views.CanvasView;
-import com.example.kiwitech.socialsketch.tools_pane.ToolsPaneFragment;
+import com.example.kiwitech.socialsketch.Fragments.ToolsPaneFragment;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;

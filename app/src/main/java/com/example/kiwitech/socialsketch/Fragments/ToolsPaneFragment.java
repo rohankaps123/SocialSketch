@@ -1,4 +1,4 @@
-package com.example.kiwitech.socialsketch.tools_pane;
+package com.example.kiwitech.socialsketch.Fragments;
 
 import android.app.Activity;
 import android.os.Bundle;

@@ -54,7 +54,7 @@
             </fragment>
 
             <fragment
-                android:name="com.example.kiwitech.socialsketch.tools_pane.ToolsPaneFragment"
+                android:name="com.example.kiwitech.socialsketch.Fragments.ToolsPaneFragment"
                 tools:context="com.example.kiwitech.socialsketch.MainActivity"
                 android:id="@+id/tools"
                 android:layout_width="match_parent"
