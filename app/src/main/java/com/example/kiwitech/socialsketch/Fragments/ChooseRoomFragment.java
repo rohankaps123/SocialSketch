@@ -3,6 +3,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -188,7 +189,12 @@ public class ChooseRoomFragment extends Fragment {
                 case R.id.create_room_button:
                     //close the keyboard on click
                     imm.hideSoftInputFromWindow(v.getWindowToken(),0);
+                    if(newRoomName.getText().toString().equals("") || newRoomName.getText().toString() == null){
+                        Toast.makeText(getActivity(), "Room Name cannot be Empty", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
                     addRoom();
+                    }
                     break;
                 case R.id.use_local_button:
                     //close the keyboard on click
