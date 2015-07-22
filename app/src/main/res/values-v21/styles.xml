@@ -9,7 +9,19 @@
         <!--   theme UI controls like checkboxes and text fields -->
         <item name="android:colorAccent">@color/accent</item>
         <item name="android:textColorPrimary">@color/statusbar_text</item>
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
 
+    <style name="AppThemeNoAction" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <!-- Main theme colors -->
+        <!--   your app branding color for the app bar -->
+        <item name="android:colorPrimary">@color/primary</item>
+        <!--   darker variant for the status bar and contextual app bars -->
+        <item name="android:colorPrimaryDark">@android:color/black</item>
+        <!--   theme UI controls like checkboxes and text fields -->
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:textColorPrimary">@color/statusbar_text</item>
+        <item name="android:windowBackground">@android:color/black</item>
     </style>
 
         <!-- Styling the color picker dialog fragment.
@@ -44,6 +56,11 @@
 
     <style name="SizeDialogButtonStyle" parent="android:Widget.Material.Button.Borderless">
         <item name="android:textColor">?android:colorAccent</item>
+    </style>
+
+    <style name="SplashScreen" parent="android:Theme.Material.NoActionBar">
+        <item name="android:padding">0dp</item>
+        <item name="android:windowBackground">@android:color/black</item>
     </style>
 
 </resources>

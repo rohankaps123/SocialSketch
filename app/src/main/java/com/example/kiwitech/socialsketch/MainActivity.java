@@ -4,6 +4,7 @@ package com.example.kiwitech.socialsketch;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,9 +19,10 @@ import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
-
 import com.example.kiwitech.socialsketch.Fragments.ChatFragment;
 import com.example.kiwitech.socialsketch.Fragments.ChooseFriendFragment;
 import com.example.kiwitech.socialsketch.Fragments.ChooseRoomFragment;
@@ -39,6 +41,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -179,6 +182,8 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        showSplashScreen();
+        setTheme(R.style.AppTheme);
         //Firebase.getDefaultConfig().setPersistenceEnabled(true);
         Firebase.setAndroidContext(this);
         setContentView(R.layout.activity_main);
@@ -196,6 +201,31 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
         messaging.setOnClickListener(ButtonHandler);
         addFriend.setOnClickListener(ButtonHandler);
     }
+
+
+    protected static Dialog mSplashDialog;
+
+    /**
+     * Removes the Dialog that displays the splash screen
+     */
+    public static void removeSplashScreen() {
+        if (mSplashDialog != null) {
+            mSplashDialog.dismiss();
+            mSplashDialog = null;
+        }
+    }
+
+    /**
+     * Shows the splash screen over the full Activity
+     */
+    protected void showSplashScreen() {
+        mSplashDialog = new Dialog(this, R.style.SplashScreen);
+        mSplashDialog.setContentView(R.layout.activity_splash);
+        mSplashDialog.setCancelable(false);
+        mSplashDialog.show();
+
+    }
+
 
 
     // What to do when the back button is pressed
@@ -406,18 +436,19 @@ public class MainActivity extends Activity implements ToolsPaneFragment.OnButton
                 getFragmentManager().beginTransaction().replace(R.id.main_window, login, "Login").commit();
             }
             else{
-            if(getState().equals("chat")|| getState().equals("friends")){
-                onBackPressed();
+                CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
+                if(getState().equals("chat")|| getState().equals("friends")){
+                    canvasF.removeNewSegmentListener();
+                    onBackPressed();
                 setState("canvas");
             }
             //Set the user as offline in the canvas when logging out
             if ((getState().equals("canvas")) && mFirebaseRef!=null) {
+                canvasF.removeNewSegmentListener();
                 mFirebaseRef.child("members").child(MainActivity.getThisRoomID()).child(MainActivity.getThisUserID()).setValue(false);
             }
             //logout user when ever logout is selected and bring up the login fragment
             login.logout();
-            CanvasFragment canvasF = (CanvasFragment) getFragmentManager().findFragmentById(R.id.Canvas_Fragment);
-                canvasF.removeNewSegmentListener();
                 CanvasView cview = (CanvasView) canvasF.getView();
             cview.clearCanvas();
             Toast.makeText(this, "Successfully logged out", Toast.LENGTH_SHORT).show();

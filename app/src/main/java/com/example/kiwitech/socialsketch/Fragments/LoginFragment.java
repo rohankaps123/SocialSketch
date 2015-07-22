@@ -9,6 +9,7 @@ import android.content.IntentSender;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -136,10 +137,19 @@ public class LoginFragment extends Fragment implements
             public void onAuthStateChanged(AuthData authData) {
                 if(authData == null){
                     mAuthProgressDialog.hide();
+                    // Set Runnable to remove splash screen just in case
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            MainActivity.removeSplashScreen();
+                        }
+                    }, 2000);
                 }
                 else{
+                    mAuthProgressDialog.hide();
+                    setAuthenticatedUser(authData);
                 }
-                setAuthenticatedUser(authData);
             }
         });
 
@@ -306,11 +316,10 @@ public class LoginFragment extends Fragment implements
                     @Override
                     public void onDataChange(DataSnapshot querySnapshot) {
                         if(querySnapshot.getChildrenCount() != 0){
-                            for(DataSnapshot child : querySnapshot.getChildren()){
+                            for(DataSnapshot child : querySnapshot.getChildren()) {
                                 MainActivity.setThisUserID(child.getKey());
                                 MainActivity.setThisUserName(email);
                                 mFirebaseRef.child("users").child(MainActivity.getThisUserID()).child("online").setValue(true);
-                                mAuthProgressDialog.hide();
                                 Toast.makeText(getActivity(), "Successfully logged in", Toast.LENGTH_SHORT).show();
                                 Pushbots.sharedInstance().setAlias(MainActivity.getThisUserID());
                                 getActivity().getActionBar().show();
@@ -319,6 +328,7 @@ public class LoginFragment extends Fragment implements
                                 MainActivity.setState("chooseRoom");
                                 getFragmentManager().beginTransaction().replace(R.id.main_window, roomchooser, "Choose Room").commit();
                                 getActivity().invalidateOptionsMenu();
+                                MainActivity.removeSplashScreen();
                             }
                         }
                         else{
